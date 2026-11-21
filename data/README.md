@@ -1,7 +1,7 @@
-# VALICORA Data Specification & Synthetic Generator
+# INVOSTRATA Data Specification & Synthetic Generator
 
 ## Overview
-VALICORA uses realistic synthetic Indian commercial invoice records. All synthetic records are explicitly tagged with `is_synthetic = True` and notes starting with `DEMO DATA:`.
+INVOSTRATA uses realistic synthetic Indian commercial invoice records. All synthetic records are explicitly tagged with `is_synthetic = True` and notes starting with `DEMO DATA:`.
 
 ## Schema Attributes
 - `id`: Human-readable identifier (e.g. `INV-2026-0001`)

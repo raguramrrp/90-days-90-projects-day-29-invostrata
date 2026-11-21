@@ -1,6 +1,6 @@
-# VALICORA Quick Start Guide
+# INVOSTRATA Quick Start Guide
 
-VALICORA is an automated financial consistency and invoice validation workstation.
+INVOSTRATA is an automated financial consistency and invoice validation workstation.
 
 ## Prerequisites
 - Windows 10/11

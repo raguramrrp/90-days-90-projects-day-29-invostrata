@@ -1,7 +1,7 @@
-# VALICORA — Development Notes & Engineering Decisions
+# INVOSTRATA — Development Notes & Engineering Decisions
 
 ## 1. Absolute Precision with Python Decimal
-In financial operations, floating-point numbers (`0.1 + 0.2 = 0.30000000000000004`) lead to accumulated compounding rounding errors that can trigger false fraud alerts. VALICORA strictly enforces `decimal.Decimal` with explicit `ROUND_HALF_UP` quantization across all monetary fields:
+In financial operations, floating-point numbers (`0.1 + 0.2 = 0.30000000000000004`) lead to accumulated compounding rounding errors that can trigger false fraud alerts. INVOSTRATA strictly enforces `decimal.Decimal` with explicit `ROUND_HALF_UP` quantization across all monetary fields:
 - 2 decimal places (`0.01`) for currency values.
 - 3 decimal places (`0.001`) for fractional physical quantities.
 - Tolerances default to ₹0.05 to accommodate natural fractional rounding on large line item counts.

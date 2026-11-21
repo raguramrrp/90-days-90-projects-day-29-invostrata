@@ -49,7 +49,7 @@ class ValidationReporter:
     def generate_pdf_report(invoices: List[Invoice], summary_metrics: Dict[str, Any]) -> bytes:
         """
         Creates a clean enterprise PDF audit report using ReportLab.
-        Forest green theme (#286B55) matching VALICORA design standards.
+        Forest green theme (#286B55) matching INVOSTRATA design standards.
         """
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(
@@ -107,7 +107,7 @@ class ValidationReporter:
         )
 
         # Title & Header
-        elements.append(Paragraph("VALICORA", title_style))
+        elements.append(Paragraph("INVOSTRATA", title_style))
         elements.append(Paragraph("Automated Invoice Validation & Financial Consistency Workstation — Executive Audit Report", subtitle_style))
         elements.append(Paragraph(f"Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')} | Workstation Status: ACTIVE", subtitle_style))
         elements.append(Spacer(1, 15))
@@ -196,7 +196,7 @@ class ValidationReporter:
         # Footer statement
         elements.append(Spacer(1, 20))
         elements.append(Paragraph(
-            "<i>Certification Note: Generated deterministically by VALICORA Validation Engine using Python Decimal precision arithmetic. Every calculation independently verified against source line items.</i>",
+            "<i>Certification Note: Generated deterministically by INVOSTRATA Validation Engine using Python Decimal precision arithmetic. Every calculation independently verified against source line items.</i>",
             subtitle_style
         ))
 

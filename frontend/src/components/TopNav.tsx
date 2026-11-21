@@ -22,14 +22,14 @@ export const TopNav: React.FC<Props> = ({ currentTab, onNavigate, onImportClick 
     settings: { title: 'Workstation Configuration', breadcrumb: 'Workstation / Settings' },
   };
 
-  const current = titles[currentTab] || { title: 'VALICORA', breadcrumb: 'Workstation' };
+  const current = titles[currentTab] || { title: 'INVOSTRATA', breadcrumb: 'Workstation' };
 
   return (
     <header className="h-14 bg-surface border-b border-border px-6 flex items-center justify-between shrink-0 z-10">
       {/* Brand & Breadcrumb */}
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">
-          <span className="font-bold text-lg tracking-tight text-primary">VALICORA</span>
+          <span className="font-bold text-lg tracking-tight text-primary">INVOSTRATA</span>
           <span className="text-border">|</span>
           <span className="text-xs font-mono uppercase tracking-wider text-text-secondary bg-[#F4F6F4] px-2 py-0.5 rounded border border-border">
             Operations

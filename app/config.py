@@ -6,16 +6,16 @@ from pydantic import BaseModel
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 class Settings(BaseModel):
-    PROJECT_NAME: str = "VALICORA"
+    PROJECT_NAME: str = "INVOSTRATA"
     PROJECT_TITLE: str = "Automated Invoice Validation & Financial Consistency Workstation"
     PROJECT_TAGLINE: str = "Every invoice checked. Every discrepancy explained."
     VERSION: str = "1.0.0"
     
     # Database (Defaults to local SQLite for instant zero-config launch, easily configured to PostgreSQL)
-    DATABASE_URL: str = os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'valicora.db'}")
+    DATABASE_URL: str = os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'invostrata.db'}")
     
     # Security & Auth
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "valicora_enterprise_financial_consistency_secret_2026")
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "invostrata_enterprise_financial_consistency_secret_2026")
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
     

@@ -118,12 +118,12 @@ def export_reports(
         return Response(
             content=csv_bytes,
             media_type="text/csv",
-            headers={"Content-Disposition": f"attachment; filename=valicora_financial_audit_{datetime.utcnow().strftime('%Y%m%d')}.csv"}
+            headers={"Content-Disposition": f"attachment; filename=invostrata_financial_audit_{datetime.utcnow().strftime('%Y%m%d')}.csv"}
         )
     else:
         pdf_bytes = ValidationReporter.generate_pdf_report(invoices, summary)
         return Response(
             content=pdf_bytes,
             media_type="application/pdf",
-            headers={"Content-Disposition": f"attachment; filename=valicora_validation_report_{datetime.utcnow().strftime('%Y%m%d')}.pdf"}
+            headers={"Content-Disposition": f"attachment; filename=invostrata_validation_report_{datetime.utcnow().strftime('%Y%m%d')}.pdf"}
         )

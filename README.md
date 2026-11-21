@@ -1,4 +1,4 @@
-# VALICORA — Automated Invoice Validation & Financial Consistency Workstation
+# INVOSTRATA — Automated Invoice Validation & Financial Consistency Workstation
 
 > **Tagline:** Every invoice checked. Every discrepancy explained.  
 > **Domain:** FinTech / Financial Automation / Document Intelligence / Accounting Operations  
@@ -7,7 +7,7 @@
 ---
 
 ## 1. Project Title & Overview
-**VALICORA** is an enterprise-grade automated invoice validation and financial consistency workstation designed for financial controllers, auditors, and accounts payable (AP) operations. It ingests multi-format invoices (PDF, image, CSV, Excel), parses deliverables, independently verifies line-item calculations using exact Python Decimal arithmetic, validates Indian GST compliance, detects duplicate submissions, investigates anomalies, and performs 3-way purchase order reconciliation.
+**INVOSTRATA** is an enterprise-grade automated invoice validation and financial consistency workstation designed for financial controllers, auditors, and accounts payable (AP) operations. It ingests multi-format invoices (PDF, image, CSV, Excel), parses deliverables, independently verifies line-item calculations using exact Python Decimal arithmetic, validates Indian GST compliance, detects duplicate submissions, investigates anomalies, and performs 3-way purchase order reconciliation.
 
 ---
 
@@ -19,7 +19,7 @@ Corporate accounting teams process hundreds of vendor invoices monthly. Manual v
 - Split-billing to circumvent procurement authorizations.
 - Disconnect between contracted Purchase Orders (PO), delivered warehouse goods (GRN), and billed invoices.
 
-VALICORA eliminates these operational risks with a local-first, deterministic validation engine providing mathematical verification, audit trails, and explainable discrepancy diagnostics.
+INVOSTRATA eliminates these operational risks with a local-first, deterministic validation engine providing mathematical verification, audit trails, and explainable discrepancy diagnostics.
 
 ---
 
@@ -46,7 +46,7 @@ VALICORA eliminates these operational risks with a local-first, deterministic va
 ---
 
 ## 5. Visual Interface & Design System
-VALICORA follows a restrained enterprise aesthetic:
+INVOSTRATA follows a restrained enterprise aesthetic:
 - **Main Workspace**: `#F4F6F4`
 - **Surface**: `#FFFFFF`
 - **Primary Green**: `#286B55` (Active navigation states & verified indicators)
@@ -102,7 +102,7 @@ VALICORA follows a restrained enterprise aesthetic:
 
 ## 8. Project Structure
 ```
-90-days-90-projects-day-29-valicora/
+90-days-90-projects-day-29-invostrata/
 ├── README.md
 ├── QUICKSTART.md
 ├── DEMO_SCRIPT.md
@@ -148,7 +148,7 @@ VALICORA follows a restrained enterprise aesthetic:
 
 1. **Clone or Open the Repository**:
    ```cmd
-   cd "D:\90 days\90-days-90-projects-day-29-valicora"
+   cd "D:\90 days\90-days-90-projects-day-29-invostrata"
    ```
 
 2. **Automated Setup**:
@@ -156,7 +156,7 @@ VALICORA follows a restrained enterprise aesthetic:
    ```cmd
    setup.bat
    ```
-   This will install Python dependencies, compile the React Vite bundle, and generate 105 synthetic invoices into `valicora.db`.
+   This will install Python dependencies, compile the React Vite bundle, and generate 105 synthetic invoices into `invostrata.db`.
 
 ---
 
@@ -172,9 +172,9 @@ Navigate to **`http://localhost:8000`** in your browser.
 ## 12. Environment Configuration
 Copy `.env.example` to `.env`:
 ```ini
-PROJECT_NAME="VALICORA"
-DATABASE_URL="sqlite:///./valicora.db"
-SECRET_KEY="valicora_enterprise_financial_consistency_secret_2026"
+PROJECT_NAME="INVOSTRATA"
+DATABASE_URL="sqlite:///./invostrata.db"
+SECRET_KEY="invostrata_enterprise_financial_consistency_secret_2026"
 ROUNDING_TOLERANCE=0.05
 MAX_INVOICE_AGE_DAYS=180
 HIGH_DISCOUNT_PERCENT=20.0

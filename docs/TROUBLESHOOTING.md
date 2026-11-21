@@ -1,4 +1,4 @@
-# VALICORA — Troubleshooting Guide
+# INVOSTRATA — Troubleshooting Guide
 
 ## 1. Port 8000 Already in Use
 **Symptom**: `ERROR: [Errno 10048] error while attempting to bind on address ('0.0.0.0', 8000)`
@@ -22,7 +22,7 @@ cd ..
 ## 3. Database Reinitialization
 **Symptom**: Need to reset demo data and regenerate 105 synthetic invoices.
 **Resolution**:
-Delete `valicora.db` and run:
+Delete `invostrata.db` and run:
 ```cmd
 python -m app.seed.seed_data
 ```

@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "valicora"
+name = "invostrata"
 version = "1.0.0"
-description = "VALICORA — Automated Invoice Validation & Financial Consistency Workstation"
+description = "INVOSTRATA — Automated Invoice Validation & Financial Consistency Workstation"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }

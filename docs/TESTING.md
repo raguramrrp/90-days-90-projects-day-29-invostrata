@@ -1,4 +1,4 @@
-# VALICORA — Automated Testing & Quality Assurance
+# INVOSTRATA — Automated Testing & Quality Assurance
 
 ## Test Suite Execution
 Execute the automated test suite using:

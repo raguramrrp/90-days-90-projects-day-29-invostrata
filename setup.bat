@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 cd /d "%~dp0"
 
 echo ======================================================================
-echo VALICORA — Workstation Setup Script (Windows)
+echo INVOSTRATA — Workstation Setup Script (Windows)
 echo ======================================================================
 echo.
 
@@ -45,7 +45,7 @@ python -m app.seed.seed_data
 
 echo.
 echo ======================================================================
-echo [SUCCESS] VALICORA setup completed successfully!
+echo [SUCCESS] INVOSTRATA setup completed successfully!
 echo Run 'run.bat' to launch the application server on http://localhost:8000
 echo ======================================================================
 pause

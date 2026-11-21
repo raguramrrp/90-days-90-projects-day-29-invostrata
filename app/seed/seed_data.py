@@ -121,17 +121,17 @@ def seed_database():
         db.close()
         return
 
-    print("Seeding VALICORA database with 105 realistic enterprise invoices...")
+    print("Seeding INVOSTRATA database with 105 realistic enterprise invoices...")
 
     # 1. Create Default Users
     admin_user = db.query(User).filter(User.username == "admin").first()
     if not admin_user:
         admin_user = User(
             username="admin",
-            email="admin@valicora.internal",
+            email="admin@invostrata.internal",
             full_name="Chief Financial Auditor",
             role="admin",
-            hashed_password="pbkdf2:sha256:600000$dummyhash$valicora2026",
+            hashed_password="pbkdf2:sha256:600000$dummyhash$invostrata2026",
             is_active=True
         )
         db.add(admin_user)
@@ -630,7 +630,7 @@ def seed_database():
             inv.validation_status = "PASSED"
 
     db.commit()
-    print(f"VALICORA database seeded successfully with {len(all_invoices)} validated invoices.")
+    print(f"INVOSTRATA database seeded successfully with {len(all_invoices)} validated invoices.")
     db.close()
 
 if __name__ == "__main__":

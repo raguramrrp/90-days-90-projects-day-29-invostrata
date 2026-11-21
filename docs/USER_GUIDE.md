@@ -1,8 +1,8 @@
-# VALICORA — User Operations Guide
+# INVOSTRATA — User Operations Guide
 
 ## Navigation & Workspaces
 
-VALICORA organizes accounting operations across 10 distinct workspaces via the slim left navigation rail:
+INVOSTRATA organizes accounting operations across 10 distinct workspaces via the slim left navigation rail:
 
 1. **Overview**: High-level financial validation KPIs, volume velocity, distribution donut chart, and high-priority statutory audit checks.
 2. **Invoice Queue**: The primary operational workspace with structured table columns, search, filtering by status/vendor/amount, batch revalidation, and single-click access to the right-side Inspection Panel.

@@ -1,4 +1,4 @@
-# VALICORA — System Architecture & Component Design
+# INVOSTRATA — System Architecture & Component Design
 
 ## Technical Architecture
 

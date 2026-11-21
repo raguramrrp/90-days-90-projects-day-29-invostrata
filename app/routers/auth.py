@@ -33,14 +33,14 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == req.username).first()
     if not user:
         # Allow default admin login for local testing
-        if req.username == "admin" and req.password in ["admin", "admin123", "valicora2026"]:
+        if req.username == "admin" and req.password in ["admin", "admin123", "invostrata2026"]:
             return {
-                "access_token": "valicora_session_token_admin_2026",
+                "access_token": "invostrata_session_token_admin_2026",
                 "token_type": "bearer",
                 "user": {
                     "id": 1,
                     "username": "admin",
-                    "email": "admin@valicora.internal",
+                    "email": "admin@invostrata.internal",
                     "full_name": "Chief Financial Auditor",
                     "role": "admin"
                 }
@@ -48,7 +48,7 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid username or credentials")
     
     return {
-        "access_token": f"valicora_session_token_{user.username}",
+        "access_token": f"invostrata_session_token_{user.username}",
         "token_type": "bearer",
         "user": {
             "id": user.id,
@@ -64,7 +64,7 @@ def get_current_user():
     return {
         "id": 1,
         "username": "admin",
-        "email": "admin@valicora.internal",
+        "email": "admin@invostrata.internal",
         "full_name": "Chief Financial Auditor",
         "role": "admin"
     }

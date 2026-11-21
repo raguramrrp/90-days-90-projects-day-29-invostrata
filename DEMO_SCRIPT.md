@@ -1,4 +1,4 @@
-# VALICORA 90-Second Portfolio Demonstration Script
+# INVOSTRATA 90-Second Portfolio Demonstration Script
 
 ## Objective
 Demonstrate automated invoice ingestion, arithmetic validation, Indian GST checks, duplicate detection, and 3-way matching.

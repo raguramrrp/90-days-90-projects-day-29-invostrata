@@ -3,7 +3,7 @@ setlocal
 cd /d "%~dp0"
 
 echo ======================================================================
-echo VALICORA — Automated Invoice Validation & Financial Workstation
+echo INVOSTRATA — Automated Invoice Validation & Financial Workstation
 echo ======================================================================
 echo.
 echo Launching Uvicorn backend server at http://localhost:8000 ...
