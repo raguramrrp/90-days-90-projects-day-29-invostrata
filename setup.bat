@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 cd /d "%~dp0"
 
 echo ======================================================================
-echo INVOSTRATA — Workstation Setup Script (Windows)
+echo INVOSTRATA -- Workstation Setup Script (Windows)
 echo ======================================================================
 echo.
 

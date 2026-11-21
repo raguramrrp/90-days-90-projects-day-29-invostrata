@@ -3,7 +3,7 @@ setlocal
 cd /d "%~dp0"
 
 echo ======================================================================
-echo INVOSTRATA — Automated Test Suite Execution
+echo INVOSTRATA -- Automated Test Suite Execution
 echo ======================================================================
 echo.
 
