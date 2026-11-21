@@ -1,0 +1,6 @@
+invoice_number,invoice_date,due_date,vendor_name,vendor_gstin,customer_name,customer_gstin,item_description,hsn_sac,quantity,unit_price,discount,gst_rate,place_of_supply,po_number
+INV-BATCH-001,2026-11-10,2026-12-10,InfraTech Cloud Solutions Pvt Ltd,29AABCU9603R1ZM,ACME Technologies India Pvt Ltd,29AABCA1234F1ZP,Dedicated Kubernetes Cluster Pod Nodes,998313,2,15000.00,0.00,18.0,Karnataka,PO-2026-8801
+INV-BATCH-002,2026-11-12,2026-12-12,Apex Industrial Components Ltd,27AAACA1234E1ZR,ACME Technologies India Pvt Ltd,29AABCA1234F1ZP,Industrial Pneumatic Actuator Assembly,848120,5,3400.00,200.00,18.0,Karnataka,PO-2026-8802
+INV-BATCH-003,2026-11-14,2026-12-14,Kaveri Logistics & Freight Corp,33AABCK8765Q1Z9,ACME Technologies India Pvt Ltd,29AABCA1234F1ZP,Long-Haul Pallet Freight Transit,996511,1,28000.00,0.00,18.0,Karnataka,PO-2026-8803
+INV-BATCH-004,2026-11-15,2026-12-15,Global Office Supplies India Ltd,29AAACG4433F1Z1,ACME Technologies India Pvt Ltd,29AABCA1234F1ZP,High-Speed Document Scanner & OCR Units,847160,3,12500.00,500.00,18.0,Karnataka,PO-2026-8804
+INV-BATCH-005,2026-11-16,2026-12-16,Nordic Clean Energy Systems,07AAACN5544K1ZV,ACME Technologies India Pvt Ltd,29AABCA1234F1ZP,Solar Charge Regulator 60A MPPT,850440,2,8500.00,0.00,12.0,Karnataka,
