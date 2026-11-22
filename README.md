@@ -45,7 +45,27 @@ INVOSTRATA eliminates these operational risks with a local-first, deterministic 
 
 ---
 
-## 5. Visual Interface & Design System
+## 5. 📸 Workstation Visuals & Platform Screenshots
+
+### 1. Invoice Register & Selected Inspection Panel
+*Primary accounting workstation featuring single 4-metric summary strip, search & filter toolbar, 9-column invoice register table, and docked right selected invoice inspection panel.*
+![Invoice Register](docs/screenshots/01-invoice-register.png)
+
+### 2. Deep Audit Record & Reconciliation Inspector
+*Slide-out inspector drawer providing complete line-item breakdown, deterministic arithmetic reconciliation, statutory tax verification, original PDF document preview, and controller approval actions.*
+![Audit Record Inspector](docs/screenshots/02-audit-record-inspector.png)
+
+### 3. Validation Centre & Rule Execution Suite
+*Automated audit suite evaluating invoices against deterministic Python Decimal arithmetic rules, statutory Indian GST constraints, chronological sequence checks, and duplicate collisions.*
+![Validation Centre](docs/screenshots/03-validation-centre.png)
+
+### 4. Exceptions Ledger & Variance Triage Management
+*Dedicated triage workspace for accounts payable teams to investigate failed invoices, review calculation differences, assign auditors, and log formal dispute notes.*
+![Exceptions Management](docs/screenshots/04-exceptions-management.png)
+
+---
+
+## 6. Visual Interface & Design System
 INVOSTRATA features a professional financial operations interface inspired by modern accounting workstations and institutional audit platforms:
 - **Page Background**: `#F8F6F1` (Warm Ivory / Off-White)
 - **Main Surface**: `#FFFFFF` (Crisp White)
@@ -69,7 +89,7 @@ INVOSTRATA features a professional financial operations interface inspired by mo
 
 ---
 
-## 6. Architecture & Data Flow
+## 7. Architecture & Data Flow
 
 ```
 [ Upload Invoices (PDF / Image / CSV / Excel) ]
@@ -101,7 +121,7 @@ INVOSTRATA features a professional financial operations interface inspired by mo
 
 ---
 
-## 7. Technology Stack
+## 8. Technology Stack
 - **Frontend**: React 18, TypeScript, Vite, Tailwind CSS, Lucide Icons, Recharts
 - **Backend**: Python 3.10+, FastAPI, Pydantic v2, SQLAlchemy 2.0, Alembic
 - **Document Processing**: PyMuPDF (`fitz`), `pdfplumber`, Pillow
@@ -113,7 +133,7 @@ INVOSTRATA features a professional financial operations interface inspired by mo
 
 ---
 
-## 8. Project Structure
+## 9. Project Structure
 ```
 90-days-90-projects-day-29-invostrata/
 ├── README.md
@@ -139,25 +159,26 @@ INVOSTRATA features a professional financial operations interface inspired by mo
 │   └── seed/                       # Database seeder (105 synthetic invoices)
 ├── frontend/                       # React 18 + TypeScript + Vite workstation
 │   ├── src/
-│   │   ├── components/             # TopNav, InvoiceInspector, StatusBadge
+│   │   ├── components/             # TopNav, SelectedInvoicePanel, InvoiceInspector
 │   │   └── pages/                  # 10 dedicated operational workspaces
+├── docs/                           # Architecture, User Guide & Screenshots
+│   └── screenshots/                # 4 main platform feature screenshots
 ├── data/
 │   ├── sample_invoices.csv         # Batch ingestion sample
 │   └── README.md
-├── docs/                           # Architecture, User Guide, Testing specs
 └── tests/                          # 25 automated unit and integration tests
 ```
 
 ---
 
-## 9. Prerequisites
+## 10. Prerequisites
 - Windows 10/11
 - Python 3.10+
 - Node.js 18+ (for building frontend assets)
 
 ---
 
-## 10. Step-by-Step Windows Installation
+## 11. Step-by-Step Windows Installation
 
 1. **Clone or Open the Repository**:
    ```cmd
@@ -173,7 +194,7 @@ INVOSTRATA features a professional financial operations interface inspired by mo
 
 ---
 
-## 11. Quick Start Commands
+## 12. Quick Start Commands
 Launch the workstation:
 ```cmd
 run.bat
@@ -182,7 +203,7 @@ Navigate to **`http://localhost:8000`** in your browser.
 
 ---
 
-## 12. Environment Configuration
+## 13. Environment Configuration
 Copy `.env.example` to `.env`:
 ```ini
 PROJECT_NAME="INVOSTRATA"
@@ -195,8 +216,8 @@ HIGH_DISCOUNT_PERCENT=20.0
 
 ---
 
-## 13. Dataset & Demonstration
-The system includes 105 realistic synthetic invoices spanning 8 corporate vendors and 4 purchase orders. Scenarios include:
+## 14. Dataset & Demonstration
+The system includes 128 realistic synthetic invoices spanning 8 corporate vendors and 4 purchase orders. Scenarios include:
 - Clean, fully reconciled invoices.
 - Deliberate grand total and subtotal discrepancies.
 - Erroneous inter-state and intra-state GST splits.
@@ -208,55 +229,32 @@ The system includes 105 realistic synthetic invoices spanning 8 corporate vendor
 
 ---
 
-## 14. Testing & Verification
+## 15. Testing & Verification
 Run the test suite:
 ```cmd
 test.bat
 ```
 Actual Test Results:
 ```
-tests/test_anomaly_engine.py::test_suspect_round_amount PASSED
-tests/test_anomaly_engine.py::test_high_discount_anomaly PASSED
-tests/test_decimal_math.py::test_to_decimal_various_inputs PASSED
-tests/test_decimal_math.py::test_quantize_money PASSED
-tests/test_decimal_math.py::test_quantize_quantity PASSED
-tests/test_decimal_math.py::test_calculate_line_item PASSED
-tests/test_decimal_math.py::test_calculate_gst_amount PASSED
-tests/test_decimal_math.py::test_tolerance_and_discrepancy PASSED
-tests/test_duplicate_detector.py::test_exact_file_hash_duplicate PASSED
-tests/test_duplicate_detector.py::test_exact_invoice_fields_duplicate PASSED
-tests/test_financial_validator.py::test_arithmetic_valid_invoice PASSED
-tests/test_financial_validator.py::test_arithmetic_grand_total_mismatch PASSED
-tests/test_financial_validator.py::test_date_future_dated PASSED
-tests/test_financial_validator.py::test_date_due_before_invoice PASSED
-tests/test_gst_validation.py::test_gstin_invalid_format PASSED
-tests/test_gst_validation.py::test_gstin_invalid_state_code PASSED
-tests/test_gst_validation.py::test_intrastate_requires_cgst_sgst_not_igst PASSED
-tests/test_gst_validation.py::test_interstate_requires_igst PASSED
-tests/test_invoices_api.py::test_api_manual_invoice_and_workflow_handlers PASSED
-tests/test_reports.py::test_generate_csv_export PASSED
-tests/test_reports.py::test_generate_pdf_report PASSED
-tests/test_three_way_matching.py::test_matching_not_performed_when_no_po PASSED
-tests/test_three_way_matching.py::test_matching_success_all_aligned PASSED
-
-============================= 23 passed in 3.45s ==============================
+============================= 25 passed in 2.81s ==============================
 ```
 
 ---
 
-## 15. Known Limitations
+## 16. Known Limitations
 - OCR on poorly scanned low-resolution paper documents requires Tesseract installed on system PATH.
 - Real-time Indian GST portal API lookups require authorized taxpayer portal credentials.
 
 ---
 
-## 16. Security & Privacy
+## 17. Security & Privacy
 - Zero cloud or paid API dependencies.
 - Local-first architecture; documents never leave the local environment.
 - Safe filename sanitization prevents path traversal vulnerabilities.
 - Protected document preview URLs.
+- Sensitive files (`storage/`, `invostrata.db`, local raw screenshots) excluded via `.gitignore`.
 
 ---
 
-## 17. License
+## 18. License
 MIT License. Developed for the 90 Days – 90 Projects Challenge.
