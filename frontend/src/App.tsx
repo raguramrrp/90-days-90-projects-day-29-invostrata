@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { NavigationRail, NavItem } from './components/NavigationRail';
-import { TopNav } from './components/TopNav';
+import { TopNav, NavTab } from './components/TopNav';
 import { InvoiceInspector } from './components/InvoiceInspector';
-import { OverviewPage } from './pages/OverviewPage';
-import { InvoiceQueuePage } from './pages/InvoiceQueuePage';
+import { RegisterPage } from './pages/RegisterPage';
 import { ImportInvoicesPage } from './pages/ImportInvoicesPage';
 import { ValidationCentrePage } from './pages/ValidationCentrePage';
 import { ExceptionsPage } from './pages/ExceptionsPage';
@@ -16,9 +14,43 @@ import { Invoice } from './types';
 import { api } from './services/api';
 
 export const App: React.FC = () => {
-  const [currentTab, setCurrentTab] = useState<NavItem>('overview');
+  // Read initial tab and modal from URL params if provided
+  const getInitialTab = (): NavTab => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab') as NavTab;
+      const validTabs: NavTab[] = ['register', 'validation', 'exceptions', 'vendors', 'po', 'reports', 'import', 'audit', 'settings'];
+      if (tabParam && validTabs.includes(tabParam)) return tabParam;
+    } catch {}
+    return 'register';
+  };
+
+  const [currentTab, setCurrentTab] = useState<NavTab>(getInitialTab);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [isInspectorOpen, setIsInspectorOpen] = useState<boolean>(false);
   const [exceptionCount, setExceptionCount] = useState<number>(0);
+
+  useEffect(() => {
+    // Check if initial modal requested in query params
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('modal') === 'inspector') {
+        const targetId = params.get('invoice') || 'INV-2026-0107';
+        api.getInvoice(targetId).then((inv) => {
+          setSelectedInvoice(inv);
+          setIsInspectorOpen(true);
+        }).catch(() => {});
+      }
+    } catch {}
+  }, []);
+
+  const handleNavigate = (tab: NavTab) => {
+    setCurrentTab(tab);
+    setIsInspectorOpen(false);
+    try {
+      window.history.replaceState(null, '', `?tab=${tab}`);
+    } catch {}
+  };
 
   useEffect(() => {
     loadGlobalBadgeCounts();
@@ -37,8 +69,10 @@ export const App: React.FC = () => {
     try {
       const full = await api.getInvoice(inv.id);
       setSelectedInvoice(full);
+      setIsInspectorOpen(true);
     } catch (err) {
       setSelectedInvoice(inv);
+      setIsInspectorOpen(true);
     }
   };
 
@@ -55,64 +89,51 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-workspace text-text-primary antialiased font-sans">
-      {/* 1. Slim Left Icon Navigation Rail */}
-      <NavigationRail
+    <div className="min-h-screen w-full bg-[#F8F6F1] text-[#15263B] antialiased font-sans flex flex-col">
+      {/* 1. Full-Width Horizontal Header (82px) matching Reference Image */}
+      <TopNav
         currentTab={currentTab}
-        onSelect={(tab) => setCurrentTab(tab)}
-        exceptionCount={exceptionCount}
+        onNavigate={handleNavigate}
+        onImportClick={() => {
+          handleNavigate('import');
+        }}
       />
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
-        {/* 2. Horizontal Top Navigation */}
-        <TopNav
-          currentTab={currentTab}
-          onNavigate={(tab) => setCurrentTab(tab)}
-          onImportClick={() => setCurrentTab('import')}
-        />
+      {/* 2. Main Application Workspace Content */}
+      <main className="flex-1 w-full max-w-[1520px] mx-auto px-6 py-6">
+        {currentTab === 'register' && (
+          <RegisterPage
+            onSelectInvoiceForAudit={(inv) => {
+              setSelectedInvoice(inv);
+              setIsInspectorOpen(true);
+            }}
+            onNavigateToImport={() => setCurrentTab('import')}
+          />
+        )}
+        {currentTab === 'import' && (
+          <ImportInvoicesPage
+            onInvoiceCreated={(inv) => {
+              setSelectedInvoice(inv);
+              setCurrentTab('register');
+            }}
+          />
+        )}
+        {currentTab === 'validation' && (
+          <ValidationCentrePage onSelectInvoice={handleSelectInvoice} />
+        )}
+        {currentTab === 'exceptions' && <ExceptionsPage />}
+        {currentTab === 'vendors' && <VendorsPage />}
+        {currentTab === 'po' && <PurchaseOrdersPage />}
+        {currentTab === 'reports' && <ReportsPage />}
+        {currentTab === 'audit' && <AuditHistoryPage />}
+        {currentTab === 'settings' && <SettingsPage />}
+      </main>
 
-        {/* 3. Page Workspace Body */}
-        <main className="flex-1 overflow-y-auto p-6 relative">
-          <div className="max-w-[1440px] mx-auto">
-            {currentTab === 'overview' && (
-              <OverviewPage
-                onSelectInvoice={handleSelectInvoice}
-                onNavigateTab={(tab) => setCurrentTab(tab)}
-              />
-            )}
-            {currentTab === 'queue' && (
-              <InvoiceQueuePage
-                onSelectInvoice={handleSelectInvoice}
-                selectedInvoiceId={selectedInvoice?.id}
-              />
-            )}
-            {currentTab === 'import' && (
-              <ImportInvoicesPage
-                onInvoiceCreated={(inv) => {
-                  handleSelectInvoice(inv);
-                  setCurrentTab('queue');
-                }}
-              />
-            )}
-            {currentTab === 'validation' && (
-              <ValidationCentrePage onSelectInvoice={handleSelectInvoice} />
-            )}
-            {currentTab === 'exceptions' && <ExceptionsPage />}
-            {currentTab === 'vendors' && <VendorsPage />}
-            {currentTab === 'po' && <PurchaseOrdersPage />}
-            {currentTab === 'reports' && <ReportsPage />}
-            {currentTab === 'audit' && <AuditHistoryPage />}
-            {currentTab === 'settings' && <SettingsPage />}
-          </div>
-        </main>
-      </div>
-
-      {/* 4. Right-Side Invoice Inspector (Docked Flyout) */}
-      {selectedInvoice && (
+      {/* 3. Slide-Out Detailed Invoice Audit Record Drawer */}
+      {isInspectorOpen && selectedInvoice && (
         <InvoiceInspector
           invoice={selectedInvoice}
-          onClose={() => setSelectedInvoice(null)}
+          onClose={() => setIsInspectorOpen(false)}
           onRefresh={handleRefreshSelected}
         />
       )}

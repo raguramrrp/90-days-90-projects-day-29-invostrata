@@ -73,7 +73,7 @@ def get_invoices(
     limit_val = limit if isinstance(limit, int) else 100
     offset_val = offset if isinstance(offset, int) else 0
 
-    invoices = query.order_by(desc(Invoice.created_at)).offset(offset_val).limit(limit_val).all()
+    invoices = query.order_by(desc(Invoice.invoice_date), desc(Invoice.id)).offset(offset_val).limit(limit_val).all()
     return invoices
 
 @router.get("/{invoice_id}", response_model=InvoiceResponse)

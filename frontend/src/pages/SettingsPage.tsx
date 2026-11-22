@@ -34,17 +34,16 @@ export const SettingsPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-5">
       {/* Header */}
-      <div>
-        <h1 className="text-xl font-bold tracking-tight text-text-primary">Workstation Settings & Configuration</h1>
-        <p className="text-xs text-text-secondary mt-0.5">
-          Configure financial arithmetic tolerances, statutory GST thresholds, and active validation rules.
-        </p>
+      <div className="bg-white border border-border rounded-lg p-5 shadow-sm">
+        <h1 className="text-xl font-bold tracking-tight text-text-primary">
+          Settings & Validation Engine Rules
+        </h1>
       </div>
 
       {savedSuccess && (
-        <div className="p-3 bg-[#EAF3EE] border border-[#C2DDD0] text-primary text-xs rounded-lg flex items-center space-x-2">
+        <div className="p-3 bg-status-successBg border border-[#B8D5C7] text-status-success text-xs rounded-lg flex items-center space-x-2">
           <CheckCircle2 className="w-4 h-4" />
           <span>Validation parameters saved successfully. All future runs will apply these tolerances.</span>
         </div>
@@ -53,7 +52,7 @@ export const SettingsPage: React.FC = () => {
       {/* Numerical Tolerances Card */}
       <div className="bg-white border border-border rounded-lg p-5 shadow-sm space-y-4">
         <div className="flex items-center space-x-2 border-b border-border pb-2">
-          <Sliders className="w-4 h-4 text-primary" />
+          <Sliders className="w-4 h-4 text-navy" />
           <h3 className="text-xs font-bold text-text-primary uppercase tracking-wider">
             Deterministic Financial Tolerances
           </h3>
@@ -61,67 +60,64 @@ export const SettingsPage: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
           <div>
-            <label className="font-medium text-text-primary block mb-1">Rounding Precision Tolerance (₹)</label>
-            <p className="text-[11px] text-text-secondary mb-1.5">Maximum permitted mathematical rounding deviation.</p>
+            <label className="font-semibold text-text-primary block mb-1">
+              Rounding Precision Tolerance (₹)
+            </label>
             <input
               type="number"
               step="0.01"
-              value={settingsData?.rounding_tolerance || 0.05}
-              onChange={(e) => setSettingsData({ ...settingsData, rounding_tolerance: parseFloat(e.target.value) })}
-              className="w-full p-2 border border-border rounded bg-workspace font-mono focus:border-primary outline-none"
+              defaultValue={settingsData?.tolerance || '0.05'}
+              className="w-full p-2 border border-border rounded bg-surfaceMuted/50 font-mono text-xs focus:ring-1 focus:ring-navy outline-none"
             />
+            <p className="text-[11px] text-text-secondary mt-1">
+              Statutory rounding margin accepted for line-item sum reconciliation.
+            </p>
           </div>
 
           <div>
-            <label className="font-medium text-text-primary block mb-1">Max Invoice Age (Days)</label>
-            <p className="text-[11px] text-text-secondary mb-1.5">Older records trigger Section 16(4) ITC review flag.</p>
+            <label className="font-semibold text-text-primary block mb-1">
+              Maximum Invoice Age (Days)
+            </label>
             <input
               type="number"
-              value={settingsData?.max_invoice_age_days || 180}
-              onChange={(e) => setSettingsData({ ...settingsData, max_invoice_age_days: parseInt(e.target.value) })}
-              className="w-full p-2 border border-border rounded bg-workspace font-mono focus:border-primary outline-none"
+              defaultValue={settingsData?.max_age_days || '180'}
+              className="w-full p-2 border border-border rounded bg-surfaceMuted/50 font-mono text-xs focus:ring-1 focus:ring-navy outline-none"
             />
-          </div>
-
-          <div>
-            <label className="font-medium text-text-primary block mb-1">High Discount Anomaly Threshold (%)</label>
-            <p className="text-[11px] text-text-secondary mb-1.5">Commercial discount percentage prompting auditor warning.</p>
-            <input
-              type="number"
-              value={settingsData?.high_discount_threshold || 20.0}
-              onChange={(e) => setSettingsData({ ...settingsData, high_discount_threshold: parseFloat(e.target.value) })}
-              className="w-full p-2 border border-border rounded bg-workspace font-mono focus:border-primary outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="font-medium text-text-primary block mb-1">Round Number Multiple Modulo (₹)</label>
-            <p className="text-[11px] text-text-secondary mb-1.5">Exact round multiples without paise requiring contract match.</p>
-            <input
-              type="number"
-              value={settingsData?.round_number_modulo || 1000.0}
-              onChange={(e) => setSettingsData({ ...settingsData, round_number_modulo: parseFloat(e.target.value) })}
-              className="w-full p-2 border border-border rounded bg-workspace font-mono focus:border-primary outline-none"
-            />
+            <p className="text-[11px] text-text-secondary mt-1">
+              Invoices older than this threshold trigger statutory ITC Section 16(4) warnings.
+            </p>
           </div>
         </div>
 
-        <div className="flex justify-end pt-2">
+        <div>
+          <label className="font-semibold text-text-primary block mb-1 text-xs">
+            Standard Indian GST Statutory Rates Supported (%)
+          </label>
+          <div className="flex flex-wrap gap-2 text-xs font-mono">
+            {['0', '5', '12', '18', '28'].map((rate) => (
+              <span key={rate} className="px-2.5 py-1 rounded bg-surfaceMuted border border-border text-navy font-bold">
+                {rate}% Rate
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="pt-2 flex justify-end">
           <button
             onClick={handleSave}
-            className="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded text-xs font-medium transition-colors shadow-sm"
+            className="px-4 py-2 bg-copper hover:bg-copper-hover text-white text-xs font-semibold rounded transition-colors shadow-sm"
           >
-            Save Parameters
+            Update Tolerances
           </button>
         </div>
       </div>
 
-      {/* Active Rules Registry */}
+      {/* Rules Registry Card */}
       <div className="bg-white border border-border rounded-lg p-5 shadow-sm space-y-4">
         <div className="flex items-center space-x-2 border-b border-border pb-2">
-          <Shield className="w-4 h-4 text-primary" />
+          <Shield className="w-4 h-4 text-navy" />
           <h3 className="text-xs font-bold text-text-primary uppercase tracking-wider">
-            Active Statutory & Mathematical Rules Registry
+            Active Validation Rule Set
           </h3>
         </div>
 
@@ -129,21 +125,12 @@ export const SettingsPage: React.FC = () => {
           {rules.map((r, i) => (
             <div key={i} className="py-2.5 flex items-center justify-between">
               <div>
-                <div className="flex items-center space-x-2">
-                  <span className="font-mono font-bold text-primary">{r.code}</span>
-                  <span className="font-medium text-text-primary">{r.name}</span>
-                </div>
-                <p className="text-text-secondary text-[11px] mt-0.5">{r.description}</p>
+                <span className="font-mono font-bold text-navy">{r.code}</span>
+                <p className="text-text-secondary">{r.description}</p>
               </div>
-
-              <div className="flex items-center space-x-2 font-mono text-[11px]">
-                <span className={`px-2 py-0.5 rounded font-bold ${
-                  r.severity === 'CRITICAL' ? 'bg-status-criticalBg text-status-critical' : 'bg-status-warningBg text-status-warning'
-                }`}>
-                  {r.severity}
-                </span>
-                <span className="text-primary font-semibold">ENABLED</span>
-              </div>
+              <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-status-successBg text-status-success border border-[#B8D5C7]">
+                ENFORCED
+              </span>
             </div>
           ))}
         </div>

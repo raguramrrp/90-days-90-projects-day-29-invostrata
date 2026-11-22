@@ -62,31 +62,31 @@ export const ImportInvoicesPage: React.FC<Props> = ({ onInvoiceCreated }) => {
     e.stopPropagation();
     setDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      setFilesToUpload([...filesToUpload, ...Array.from(e.dataTransfer.files)]);
+      setFilesToUpload(Array.from(e.dataTransfer.files));
     }
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setFilesToUpload([...filesToUpload, ...Array.from(e.target.files)]);
+      setFilesToUpload(Array.from(e.target.files));
     }
   };
 
   const handleStartUpload = async () => {
     if (filesToUpload.length === 0) return;
     setIsUploading(true);
-    setUploadResults([]);
-
     const results = [];
-    for (const f of filesToUpload) {
+
+    for (const file of filesToUpload) {
       try {
-        const inv = await api.uploadInvoice(f);
-        results.push({ filename: f.name, success: true, invoice: inv });
+        const inv = await api.uploadInvoice(file);
+        results.push({ filename: file.name, success: true, invoice: inv });
         onInvoiceCreated(inv);
       } catch (err: any) {
-        results.push({ filename: f.name, success: false, error: err.message || 'Upload failed' });
+        results.push({ filename: file.name, success: false, error: err.message || 'Processing failed' });
       }
     }
+
     setUploadResults(results);
     setFilesToUpload([]);
     setIsUploading(false);
@@ -150,37 +150,36 @@ export const ImportInvoicesPage: React.FC<Props> = ({ onInvoiceCreated }) => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-5">
       {/* Header */}
-      <div>
-        <h1 className="text-xl font-bold tracking-tight text-text-primary">Import Invoices & Documents</h1>
-        <p className="text-xs text-text-secondary mt-0.5">
-          Ingest multi-page PDF documents, scanned images, CSV files, or enter invoices manually with instant deterministic validation.
-        </p>
+      <div className="bg-white border border-border rounded-lg p-5 shadow-sm">
+        <h1 className="text-xl font-bold tracking-tight text-text-primary">
+          Import Invoices & Document Ingestion
+        </h1>
       </div>
 
       {/* Mode Switcher */}
-      <div className="flex border-b border-border bg-white rounded-t-lg px-4 pt-3 space-x-4">
+      <div className="flex border-b border-border bg-white rounded-t-lg px-4 pt-3 space-x-4 shadow-sm">
         <button
           onClick={() => setActiveMode('upload')}
           className={`pb-2.5 text-xs font-semibold border-b-2 transition-colors flex items-center space-x-1.5 ${
             activeMode === 'upload'
-              ? 'border-primary text-primary'
+              ? 'border-navy text-navy'
               : 'border-transparent text-text-secondary hover:text-text-primary'
           }`}
         >
-          <UploadCloud className="w-4 h-4" />
+          <UploadCloud className="w-4 h-4 text-copper" />
           <span>Document & File Upload (PDF, PNG, CSV, Excel)</span>
         </button>
         <button
           onClick={() => setActiveMode('manual')}
           className={`pb-2.5 text-xs font-semibold border-b-2 transition-colors flex items-center space-x-1.5 ${
             activeMode === 'manual'
-              ? 'border-primary text-primary'
+              ? 'border-navy text-navy'
               : 'border-transparent text-text-secondary hover:text-text-primary'
           }`}
         >
-          <PlusCircle className="w-4 h-4" />
+          <PlusCircle className="w-4 h-4 text-copper" />
           <span>Manual Invoice Entry</span>
         </button>
       </div>
@@ -194,18 +193,18 @@ export const ImportInvoicesPage: React.FC<Props> = ({ onInvoiceCreated }) => {
             onDragOver={handleDrag}
             onDrop={handleDrop}
             className={`border-2 border-dashed rounded-lg p-10 text-center transition-all bg-white ${
-              dragActive ? 'border-primary bg-[#EAF3EE]/40' : 'border-border hover:border-text-secondary'
+              dragActive ? 'border-navy bg-navy-light/40' : 'border-border hover:border-text-secondary'
             }`}
           >
-            <div className="w-12 h-12 rounded-full bg-workspace border border-border flex items-center justify-center mx-auto text-primary mb-3">
-              <UploadCloud className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-full bg-surfaceMuted border border-border flex items-center justify-center mx-auto text-navy mb-3">
+              <UploadCloud className="w-6 h-6 text-copper" />
             </div>
             <h3 className="text-sm font-semibold text-text-primary">Drag & drop invoice files here</h3>
             <p className="text-xs text-text-secondary mt-1">
               Supports standard PDFs, scanned images (PNG, JPG), CSV and Excel spreadsheets (up to 25MB each)
             </p>
 
-            <label className="mt-4 inline-block px-4 py-2 bg-primary text-white text-xs font-medium rounded hover:bg-primary-dark cursor-pointer transition-colors shadow-sm">
+            <label className="mt-4 inline-block px-4 py-2 bg-navy hover:bg-navy-dark text-white text-xs font-semibold rounded cursor-pointer transition-colors shadow-sm">
               <span>Select Local Files</span>
               <input
                 type="file"
@@ -225,7 +224,7 @@ export const ImportInvoicesPage: React.FC<Props> = ({ onInvoiceCreated }) => {
                 <button
                   onClick={handleStartUpload}
                   disabled={isUploading}
-                  className="px-4 py-1.5 bg-primary hover:bg-primary-dark text-white rounded text-xs font-medium transition-colors shadow-sm"
+                  className="px-4 py-1.5 bg-copper hover:bg-copper-hover text-white rounded text-xs font-semibold transition-colors shadow-sm"
                 >
                   {isUploading ? 'Extracting & Validating...' : 'Start Ingestion & Validation'}
                 </button>
@@ -235,7 +234,7 @@ export const ImportInvoicesPage: React.FC<Props> = ({ onInvoiceCreated }) => {
                 {filesToUpload.map((f, i) => (
                   <div key={i} className="py-2 flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      <FileText className="w-4 h-4 text-primary" />
+                      <FileText className="w-4 h-4 text-navy" />
                       <span className="text-text-primary">{f.name}</span>
                     </div>
                     <span className="text-text-muted">{(f.size / 1024).toFixed(1)} KB</span>
@@ -248,18 +247,20 @@ export const ImportInvoicesPage: React.FC<Props> = ({ onInvoiceCreated }) => {
           {/* Upload results */}
           {uploadResults.length > 0 && (
             <div className="bg-white border border-border rounded-lg p-4 shadow-sm space-y-2">
-              <h4 className="text-xs font-semibold text-text-primary uppercase tracking-wider mb-2">Ingestion Output</h4>
+              <h4 className="text-xs font-bold text-text-primary uppercase tracking-wider mb-2">Ingestion Output</h4>
               <div className="space-y-2">
                 {uploadResults.map((r, i) => (
                   <div
                     key={i}
                     className={`p-3 rounded-lg border text-xs flex items-center justify-between ${
-                      r.success ? 'bg-[#EAF3EE] border-[#C2DDD0]' : 'bg-status-criticalBg border-status-critical/30'
+                      r.success
+                        ? 'bg-status-successBg border-[#B8D5C7]'
+                        : 'bg-status-criticalBg border-[#ECC7C4]'
                     }`}
                   >
                     <div className="flex items-center space-x-2">
                       {r.success ? (
-                        <CheckCircle2 className="w-4 h-4 text-primary" />
+                        <CheckCircle2 className="w-4 h-4 text-status-success" />
                       ) : (
                         <AlertCircle className="w-4 h-4 text-status-critical" />
                       )}
@@ -269,7 +270,7 @@ export const ImportInvoicesPage: React.FC<Props> = ({ onInvoiceCreated }) => {
                     {r.success ? (
                       <div className="flex items-center space-x-3 font-mono text-[11px]">
                         <span className="text-text-secondary">{r.invoice.id}</span>
-                        <span className="font-semibold text-primary">{r.invoice.validation_status}</span>
+                        <span className="font-bold text-navy">{r.invoice.validation_status}</span>
                       </div>
                     ) : (
                       <span className="text-status-critical text-xs">{r.error}</span>
@@ -285,7 +286,7 @@ export const ImportInvoicesPage: React.FC<Props> = ({ onInvoiceCreated }) => {
       {/* MODE 2: MANUAL INVOICE ENTRY */}
       {activeMode === 'manual' && (
         <form onSubmit={handleManualSubmit} className="bg-white border border-border rounded-lg p-6 shadow-sm space-y-4">
-          <h3 className="text-sm font-semibold text-text-primary border-b border-border pb-2">
+          <h3 className="text-sm font-bold text-text-primary border-b border-border pb-2">
             Manual Invoice Specification
           </h3>
 
@@ -298,7 +299,7 @@ export const ImportInvoicesPage: React.FC<Props> = ({ onInvoiceCreated }) => {
                 placeholder="e.g. INV-MANUAL-001"
                 value={manualForm.invoice_number}
                 onChange={(e) => setManualForm({ ...manualForm, invoice_number: e.target.value })}
-                className="w-full p-2 border border-border rounded bg-workspace focus:border-primary outline-none font-mono"
+                className="w-full p-2 border border-border rounded bg-surfaceMuted/50 focus:border-navy outline-none font-mono"
               />
             </div>
             <div>
@@ -308,7 +309,7 @@ export const ImportInvoicesPage: React.FC<Props> = ({ onInvoiceCreated }) => {
                 required
                 value={manualForm.invoice_date}
                 onChange={(e) => setManualForm({ ...manualForm, invoice_date: e.target.value })}
-                className="w-full p-2 border border-border rounded bg-workspace focus:border-primary outline-none font-mono"
+                className="w-full p-2 border border-border rounded bg-surfaceMuted/50 focus:border-navy outline-none font-mono"
               />
             </div>
             <div>
@@ -317,7 +318,7 @@ export const ImportInvoicesPage: React.FC<Props> = ({ onInvoiceCreated }) => {
                 type="date"
                 value={manualForm.due_date}
                 onChange={(e) => setManualForm({ ...manualForm, due_date: e.target.value })}
-                className="w-full p-2 border border-border rounded bg-workspace focus:border-primary outline-none font-mono"
+                className="w-full p-2 border border-border rounded bg-surfaceMuted/50 focus:border-navy outline-none font-mono"
               />
             </div>
           </div>
@@ -331,7 +332,7 @@ export const ImportInvoicesPage: React.FC<Props> = ({ onInvoiceCreated }) => {
                 placeholder="e.g. InfraTech Cloud Solutions Pvt Ltd"
                 value={manualForm.vendor_name}
                 onChange={(e) => setManualForm({ ...manualForm, vendor_name: e.target.value })}
-                className="w-full p-2 border border-border rounded bg-workspace focus:border-primary outline-none"
+                className="w-full p-2 border border-border rounded bg-surfaceMuted/50 focus:border-navy outline-none"
               />
             </div>
             <div>
@@ -342,89 +343,87 @@ export const ImportInvoicesPage: React.FC<Props> = ({ onInvoiceCreated }) => {
                 placeholder="e.g. 29AABCU9603R1ZM"
                 value={manualForm.vendor_gstin}
                 onChange={(e) => setManualForm({ ...manualForm, vendor_gstin: e.target.value.toUpperCase() })}
-                className="w-full p-2 border border-border rounded bg-workspace focus:border-primary outline-none font-mono"
+                className="w-full p-2 border border-border rounded bg-surfaceMuted/50 focus:border-navy outline-none font-mono"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
             <div>
-              <label className="font-medium text-text-secondary block mb-1">PO Reference Number</label>
-              <input
-                type="text"
-                placeholder="e.g. PO-2026-8801"
-                value={manualForm.po_number}
-                onChange={(e) => setManualForm({ ...manualForm, po_number: e.target.value })}
-                className="w-full p-2 border border-border rounded bg-workspace focus:border-primary outline-none font-mono"
-              />
-            </div>
-            <div>
-              <label className="font-medium text-text-secondary block mb-1">Place of Supply (State)</label>
+              <label className="font-medium text-text-secondary block mb-1">Place of Supply State</label>
               <input
                 type="text"
                 value={manualForm.place_of_supply}
                 onChange={(e) => setManualForm({ ...manualForm, place_of_supply: e.target.value })}
-                className="w-full p-2 border border-border rounded bg-workspace focus:border-primary outline-none"
+                className="w-full p-2 border border-border rounded bg-surfaceMuted/50 focus:border-navy outline-none"
               />
             </div>
             <div>
-              <label className="font-medium text-text-secondary block mb-1">POS State Code (2-Digits)</label>
+              <label className="font-medium text-text-secondary block mb-1">State Code (2 Digits)</label>
               <input
                 type="text"
                 maxLength={2}
                 value={manualForm.pos_state_code}
                 onChange={(e) => setManualForm({ ...manualForm, pos_state_code: e.target.value })}
-                className="w-full p-2 border border-border rounded bg-workspace focus:border-primary outline-none font-mono"
+                className="w-full p-2 border border-border rounded bg-surfaceMuted/50 focus:border-navy outline-none font-mono"
+              />
+            </div>
+            <div>
+              <label className="font-medium text-text-secondary block mb-1">PO Reference Number</label>
+              <input
+                type="text"
+                placeholder="e.g. PO-2026-401"
+                value={manualForm.po_number}
+                onChange={(e) => setManualForm({ ...manualForm, po_number: e.target.value })}
+                className="w-full p-2 border border-border rounded bg-surfaceMuted/50 focus:border-navy outline-none font-mono"
               />
             </div>
           </div>
 
-          {/* Line Item Section */}
-          <div className="p-4 bg-workspace rounded-lg border border-border space-y-3">
-            <h4 className="text-xs font-semibold text-text-primary">Line Deliverable</h4>
+          <div className="border-t border-border pt-4">
+            <h4 className="font-semibold text-text-primary text-xs mb-3">Primary Line Item</h4>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
               <div className="md:col-span-2">
-                <label className="font-medium text-text-secondary block mb-1">Description</label>
+                <label className="text-text-secondary block mb-1">Description</label>
                 <input
                   type="text"
-                  required
                   value={manualForm.line_description}
                   onChange={(e) => setManualForm({ ...manualForm, line_description: e.target.value })}
-                  className="w-full p-1.5 border border-border rounded bg-white"
+                  className="w-full p-2 border border-border rounded bg-surfaceMuted/50 focus:border-navy outline-none"
                 />
               </div>
               <div>
-                <label className="font-medium text-text-secondary block mb-1">Quantity</label>
+                <label className="text-text-secondary block mb-1">Quantity</label>
                 <input
                   type="number"
                   min="1"
                   value={manualForm.line_qty}
-                  onChange={(e) => setManualForm({ ...manualForm, line_qty: parseFloat(e.target.value) || 1 })}
-                  className="w-full p-1.5 border border-border rounded bg-white font-mono"
+                  onChange={(e) => setManualForm({ ...manualForm, line_qty: parseFloat(e.target.value) || 0 })}
+                  className="w-full p-2 border border-border rounded bg-surfaceMuted/50 focus:border-navy outline-none font-mono"
                 />
               </div>
               <div>
-                <label className="font-medium text-text-secondary block mb-1">Unit Rate (₹)</label>
+                <label className="text-text-secondary block mb-1">Unit Rate (₹)</label>
                 <input
                   type="number"
                   step="0.01"
-                  min="0"
                   required
-                  value={manualForm.line_rate}
+                  placeholder="50000.00"
+                  value={manualForm.line_rate || ''}
                   onChange={(e) => setManualForm({ ...manualForm, line_rate: parseFloat(e.target.value) || 0 })}
-                  className="w-full p-1.5 border border-border rounded bg-white font-mono"
+                  className="w-full p-2 border border-border rounded bg-surfaceMuted/50 focus:border-navy outline-none font-mono"
                 />
               </div>
             </div>
           </div>
 
-          <div className="flex justify-end pt-2">
+          <div className="flex justify-end pt-3 border-t border-border">
             <button
               type="submit"
               disabled={isUploading}
-              className="px-5 py-2 bg-primary hover:bg-primary-dark text-white rounded text-xs font-medium transition-colors shadow-sm"
+              className="px-5 py-2 bg-copper hover:bg-copper-hover text-white text-xs font-semibold rounded transition-colors shadow-sm"
             >
-              {isUploading ? 'Validating...' : 'Create & Validate Invoice'}
+              {isUploading ? 'Executing Validation...' : 'Ingest & Run Validation'}
             </button>
           </div>
         </form>

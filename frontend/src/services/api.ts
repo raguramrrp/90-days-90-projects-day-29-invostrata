@@ -190,6 +190,16 @@ export const api = {
     return res.json();
   },
 
+  async updateVendor(id: number, payload: any): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/vendors/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error('Vendor update failed');
+    return res.json();
+  },
+
   // Three-Way Matching & Purchase Orders
   async getPurchaseOrders(): Promise<any[]> {
     const res = await fetch(`${BASE_URL}/api/purchase-orders`);

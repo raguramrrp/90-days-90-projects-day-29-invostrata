@@ -12,7 +12,10 @@ import {
   ChevronRight,
   ShieldCheck,
   Maximize2,
-  Minimize2
+  Minimize2,
+  Clock,
+  UserCheck,
+  FileSpreadsheet
 } from 'lucide-react';
 import { Invoice } from '../types';
 import { StatusBadge } from './StatusBadge';
@@ -25,7 +28,7 @@ interface Props {
 }
 
 export const InvoiceInspector: React.FC<Props> = ({ invoice, onClose, onRefresh }) => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'validation' | 'preview'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'validation' | 'audit' | 'preview'>('overview');
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -61,7 +64,7 @@ export const InvoiceInspector: React.FC<Props> = ({ invoice, onClose, onRefresh 
   };
 
   const handleReject = async () => {
-    const reason = prompt('Please enter rejection reason:');
+    const reason = prompt('Enter statutory or accounting rejection reason:');
     if (!reason) return;
     setIsProcessing(true);
     try {
@@ -69,6 +72,19 @@ export const InvoiceInspector: React.FC<Props> = ({ invoice, onClose, onRefresh 
       onRefresh();
     } catch (err: any) {
       setErrorMsg(err.message || 'Rejection failed');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleSaveCorrection = async () => {
+    setIsProcessing(true);
+    try {
+      await api.correctInvoice(invoice.id, editFields, 'Auditor manual correction in workstation inspector');
+      setIsEditing(false);
+      onRefresh();
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Correction failed');
     } finally {
       setIsProcessing(false);
     }
@@ -86,74 +102,98 @@ export const InvoiceInspector: React.FC<Props> = ({ invoice, onClose, onRefresh 
     }
   };
 
-  const handleSaveCorrection = async () => {
-    setIsProcessing(true);
-    try {
-      await api.correctInvoice(invoice.id, editFields, 'Manual audit correction via Inspector');
-      setIsEditing(false);
-      onRefresh();
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Correction failed');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const pdfUrl = `/storage/invoices/${invoice.stored_filename}`;
+  const isCritical = invoice.validation_status === 'FAILED';
 
   return (
-    <div className="fixed inset-y-0 right-0 w-full sm:w-[560px] lg:w-[680px] bg-white border-l border-border shadow-2xl z-40 flex flex-col transition-all duration-200">
-      {/* Top Header */}
-      <div className="h-14 border-b border-border px-5 flex items-center justify-between shrink-0 bg-surface">
-        <div className="flex items-center space-x-3">
-          <span className="font-mono text-xs font-semibold text-text-primary px-2 py-0.5 rounded bg-workspace border border-border">
-            {invoice.id}
-          </span>
-          <StatusBadge status={invoice.validation_status} />
+    <div className="fixed inset-y-0 right-0 w-full sm:w-[580px] lg:w-[680px] bg-white border-l border-border shadow-2xl z-50 flex flex-col animate-slideLeft font-sans">
+      {/* 1. Header with Record ID & Actions */}
+      <div className="px-5 py-4 border-b border-border bg-white flex items-center justify-between shrink-0">
+        <div className="flex items-center space-x-2.5">
+          <div className="w-8 h-8 rounded bg-navy text-white flex items-center justify-center font-bold text-xs">
+            INV
+          </div>
+          <div>
+            <div className="flex items-center space-x-2">
+              <h3 className="font-bold text-sm text-text-primary font-mono">{invoice.id}</h3>
+              <StatusBadge status={invoice.validation_status} />
+            </div>
+            <p className="text-[11px] text-text-secondary truncate max-w-[280px]">
+              {invoice.vendor_name || 'Vendor Unassigned'} &bull; {invoice.invoice_number || 'No Number'}
+            </p>
+          </div>
         </div>
 
         <div className="flex items-center space-x-2">
           <button
-            onClick={onClose}
-            className="p-1.5 text-text-secondary hover:text-text-primary hover:bg-workspace rounded-lg transition-colors"
+            onClick={handleRevalidate}
+            disabled={isProcessing}
+            title="Re-run deterministic Python Decimal validation"
+            className="p-1.5 rounded border border-border hover:bg-surfaceMuted text-text-secondary hover:text-navy transition-colors"
           >
-            <X className="w-5 h-5" />
+            <RotateCw className={`w-4 h-4 ${isProcessing ? 'animate-spin' : ''}`} />
+          </button>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded hover:bg-surfaceMuted text-text-muted hover:text-text-primary transition-colors"
+          >
+            <X className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* Tabs Bar */}
-      <div className="flex border-b border-border px-5 bg-workspace shrink-0">
+      {/* 2. Error Message Banner (if any) */}
+      {errorMsg && (
+        <div className="px-5 py-2.5 bg-status-criticalBg border-b border-status-critical/20 text-status-critical text-xs flex items-center justify-between">
+          <span>{errorMsg}</span>
+          <button onClick={() => setErrorMsg(null)} className="font-bold ml-2">✕</button>
+        </div>
+      )}
+
+      {/* 3. Horizontal Contextual Tab Switcher */}
+      <div className="flex border-b border-border bg-surfaceMuted/40 px-5 text-xs font-medium">
         <button
           onClick={() => setActiveTab('overview')}
-          className={`py-2.5 px-4 text-xs font-medium border-b-2 transition-colors ${
+          className={`py-3 px-3.5 border-b-2 font-medium transition-colors ${
             activeTab === 'overview'
-              ? 'border-primary text-primary font-semibold'
+              ? 'border-navy text-navy font-bold'
               : 'border-transparent text-text-secondary hover:text-text-primary'
           }`}
         >
-          Overview
+          Overview & Items
         </button>
+
         <button
           onClick={() => setActiveTab('validation')}
-          className={`py-2.5 px-4 text-xs font-medium border-b-2 transition-colors flex items-center space-x-1.5 ${
+          className={`py-3 px-3.5 border-b-2 font-medium transition-colors flex items-center space-x-1.5 ${
             activeTab === 'validation'
-              ? 'border-primary text-primary font-semibold'
+              ? 'border-navy text-navy font-bold'
               : 'border-transparent text-text-secondary hover:text-text-primary'
           }`}
         >
-          <span>Validation</span>
+          <span>Validation Rules</span>
           {invoice.validation_results && invoice.validation_results.length > 0 && (
-            <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-status-criticalBg text-status-critical font-bold">
+            <span className="font-mono text-[10px] px-1.5 py-0.2 rounded bg-status-criticalBg text-status-critical font-bold">
               {invoice.validation_results.length}
             </span>
           )}
         </button>
+
+        <button
+          onClick={() => setActiveTab('audit')}
+          className={`py-3 px-3.5 border-b-2 font-medium transition-colors ${
+            activeTab === 'audit'
+              ? 'border-navy text-navy font-bold'
+              : 'border-transparent text-text-secondary hover:text-text-primary'
+          }`}
+        >
+          Audit History
+        </button>
+
         <button
           onClick={() => setActiveTab('preview')}
-          className={`py-2.5 px-4 text-xs font-medium border-b-2 transition-colors ${
+          className={`py-3 px-3.5 border-b-2 font-medium transition-colors ${
             activeTab === 'preview'
-              ? 'border-primary text-primary font-semibold'
+              ? 'border-navy text-navy font-bold'
               : 'border-transparent text-text-secondary hover:text-text-primary'
           }`}
         >
@@ -161,37 +201,28 @@ export const InvoiceInspector: React.FC<Props> = ({ invoice, onClose, onRefresh 
         </button>
       </div>
 
-      {/* Error alert if any */}
-      {errorMsg && (
-        <div className="px-5 py-2.5 bg-status-criticalBg border-b border-status-critical/20 text-status-critical text-xs flex items-center justify-between">
-          <span>{errorMsg}</span>
-          <button onClick={() => setErrorMsg(null)} className="underline ml-2">Dismiss</button>
-        </div>
-      )}
-
-      {/* Scrollable Tab Content */}
-      <div className="flex-1 overflow-y-auto p-5">
-        {/* TAB 1: OVERVIEW */}
+      {/* 4. Tab Body Area */}
+      <div className="flex-1 overflow-y-auto p-5 space-y-5 bg-[#F5F2EC]/30">
+        {/* TAB 1: OVERVIEW & LINE ITEMS */}
         {activeTab === 'overview' && (
-          <div className="space-y-5">
-            {/* Vendor & General Card */}
-            <div className="border border-border rounded-lg p-4 bg-surface space-y-3">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h4 className="text-sm font-semibold text-text-primary">{invoice.vendor_name || 'Unregistered Vendor'}</h4>
-                  <p className="text-xs text-text-secondary font-mono mt-0.5">GSTIN: {invoice.vendor_gstin || 'None Provided'}</p>
-                </div>
+          <div className="space-y-4">
+            {/* Vendor & Statutory Metadata Card */}
+            <div className="border border-border rounded-lg p-4 bg-white shadow-sm space-y-3">
+              <div className="flex items-center justify-between border-b border-border pb-2">
+                <span className="text-xs font-bold text-text-primary uppercase tracking-wider text-[10px]">
+                  Vendor & Statutory Tax Details
+                </span>
                 <button
                   onClick={() => setIsEditing(!isEditing)}
-                  className="flex items-center space-x-1 text-xs text-primary font-medium hover:underline"
+                  className="text-xs text-navy hover:underline font-medium flex items-center space-x-1"
                 >
-                  <Edit3 className="w-3.5 h-3.5" />
-                  <span>{isEditing ? 'Cancel Edit' : 'Edit Fields'}</span>
+                  <Edit3 className="w-3 h-3 text-copper" />
+                  <span>{isEditing ? 'Cancel Edit' : 'Edit Stated Values'}</span>
                 </button>
               </div>
 
               {isEditing ? (
-                <div className="grid grid-cols-2 gap-3 pt-2 border-t border-border">
+                <div className="grid grid-cols-2 gap-3 text-xs">
                   <div>
                     <label className="text-[11px] font-medium text-text-secondary">Invoice Number</label>
                     <input
@@ -207,7 +238,7 @@ export const InvoiceInspector: React.FC<Props> = ({ invoice, onClose, onRefresh 
                       type="text"
                       value={editFields.vendor_gstin}
                       onChange={(e) => setEditFields({ ...editFields, vendor_gstin: e.target.value })}
-                      className="w-full text-xs p-1.5 border border-border rounded mt-1"
+                      className="w-full text-xs p-1.5 border border-border rounded mt-1 font-mono"
                     />
                   </div>
                   <div>
@@ -234,43 +265,51 @@ export const InvoiceInspector: React.FC<Props> = ({ invoice, onClose, onRefresh 
                     <button
                       onClick={handleSaveCorrection}
                       disabled={isProcessing}
-                      className="px-3 py-1 bg-primary text-white text-xs font-medium rounded hover:bg-primary-dark"
+                      className="px-3 py-1 bg-navy hover:bg-navy-dark text-white text-xs font-semibold rounded shadow-sm"
                     >
                       Save Correction & Revalidate
                     </button>
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs pt-2 border-t border-border">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
                   <div>
-                    <span className="text-text-muted">Invoice Date: </span>
-                    <span className="font-mono text-text-primary">{invoice.invoice_date || 'N/A'}</span>
+                    <span className="text-text-muted text-[11px]">Vendor Name: </span>
+                    <span className="font-semibold text-text-primary block">{invoice.vendor_name || 'N/A'}</span>
                   </div>
                   <div>
-                    <span className="text-text-muted">Due Date: </span>
-                    <span className="font-mono text-text-primary">{invoice.due_date || 'N/A'}</span>
+                    <span className="text-text-muted text-[11px]">GSTIN: </span>
+                    <span className="font-mono text-text-primary block">{invoice.vendor_gstin || 'None'}</span>
                   </div>
                   <div>
-                    <span className="text-text-muted">Place of Supply: </span>
-                    <span className="text-text-primary">{invoice.place_of_supply || 'N/A'} ({invoice.pos_state_code})</span>
+                    <span className="text-text-muted text-[11px]">Invoice Date: </span>
+                    <span className="font-mono text-text-primary block">{invoice.invoice_date || 'N/A'}</span>
                   </div>
                   <div>
-                    <span className="text-text-muted">PO Reference: </span>
-                    <span className="font-mono text-text-primary">{invoice.po_number || 'None'}</span>
+                    <span className="text-text-muted text-[11px]">Due Date: </span>
+                    <span className="font-mono text-text-primary block">{invoice.due_date || 'N/A'}</span>
+                  </div>
+                  <div>
+                    <span className="text-text-muted text-[11px]">Place of Supply: </span>
+                    <span className="text-text-primary block">{invoice.place_of_supply || 'N/A'} ({invoice.pos_state_code})</span>
+                  </div>
+                  <div>
+                    <span className="text-text-muted text-[11px]">PO Reference: </span>
+                    <span className="font-mono text-text-primary block">{invoice.po_number || 'None'}</span>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Financial Totals Breakdown */}
-            <div className="border border-border rounded-lg p-4 bg-surface">
-              <h5 className="text-xs font-semibold text-text-primary uppercase tracking-wider text-text-muted mb-3">
-                Financial Breakdown (Stated on Document)
+            {/* Financial Stated Breakdown Card */}
+            <div className="border border-border rounded-lg p-4 bg-white shadow-sm space-y-2">
+              <h5 className="text-xs font-bold text-text-primary uppercase tracking-wider text-[10px]">
+                Deterministic Arithmetic Breakdown
               </h5>
               <div className="space-y-1.5 text-xs font-mono">
                 <div className="flex justify-between py-1 border-b border-border/50">
-                  <span className="text-text-secondary">Subtotal (Taxable Amount):</span>
-                  <span className="text-text-primary">₹{invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                  <span className="text-text-secondary">Taxable Amount:</span>
+                  <span className="text-text-primary">₹{invoice.taxable_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-border/50">
                   <span className="text-text-secondary">CGST:</span>
@@ -285,44 +324,51 @@ export const InvoiceInspector: React.FC<Props> = ({ invoice, onClose, onRefresh 
                   <span className="text-text-primary">₹{invoice.igst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-border/50">
-                  <span className="text-text-secondary">Round Off Difference:</span>
+                  <span className="text-text-secondary">Round Off:</span>
                   <span className="text-text-primary">₹{invoice.round_off.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between pt-2 text-sm font-bold text-text-primary">
                   <span>Grand Total:</span>
-                  <span className="text-primary">₹{invoice.grand_total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                  <span className="text-navy font-bold">₹{invoice.grand_total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                 </div>
               </div>
             </div>
 
             {/* Line Items Table */}
-            <div className="border border-border rounded-lg overflow-hidden bg-surface">
-              <div className="px-4 py-2.5 bg-workspace border-b border-border font-semibold text-xs text-text-primary">
-                Itemized Line Deliverables ({invoice.line_items?.length || 0})
+            <div className="border border-border rounded-lg overflow-hidden bg-white shadow-sm">
+              <div className="px-4 py-2.5 bg-surfaceMuted/60 border-b border-border font-semibold text-xs text-text-primary flex items-center justify-between">
+                <span>Extracted Line Items ({invoice.line_items?.length || 0})</span>
+                <span className="text-[10px] text-text-muted font-mono">Verified Qty & Rate</span>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-[11px]">
-                  <thead className="bg-[#FAFCFA] border-b border-border text-text-secondary font-mono">
+              <div className="overflow-x-auto max-h-56">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-surfaceMuted/40 text-text-secondary font-mono text-[10px] border-b border-border">
                     <tr>
-                      <th className="py-2 px-3">Description</th>
-                      <th className="py-2 px-2 text-right">Qty</th>
-                      <th className="py-2 px-2 text-right">Unit Rate</th>
-                      <th className="py-2 px-2 text-right">Taxable</th>
-                      <th className="py-2 px-2 text-right">GST</th>
-                      <th className="py-2 px-3 text-right">Total</th>
+                      <th className="p-2">Description</th>
+                      <th className="p-2 text-right">Qty</th>
+                      <th className="p-2 text-right">Rate (₹)</th>
+                      <th className="p-2 text-right">Tax%</th>
+                      <th className="p-2 text-right">Total (₹)</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                    {invoice.line_items?.map((item, idx) => (
-                      <tr key={idx} className="hover:bg-workspace/50">
-                        <td className="py-2 px-3 font-medium text-text-primary max-w-[180px] truncate">{item.description}</td>
-                        <td className="py-2 px-2 text-right font-mono">{item.quantity}</td>
-                        <td className="py-2 px-2 text-right font-mono">₹{item.unit_price.toFixed(2)}</td>
-                        <td className="py-2 px-2 text-right font-mono">₹{item.taxable_value.toFixed(2)}</td>
-                        <td className="py-2 px-2 text-right font-mono">{item.gst_rate}%</td>
-                        <td className="py-2 px-3 text-right font-mono font-semibold text-text-primary">₹{item.total_amount.toFixed(2)}</td>
+                    {invoice.line_items && invoice.line_items.length > 0 ? (
+                      invoice.line_items.map((item, idx) => (
+                        <tr key={idx} className="hover:bg-surfaceMuted/20 font-mono text-[11px]">
+                          <td className="p-2 font-sans font-medium text-text-primary">{item.description}</td>
+                          <td className="p-2 text-right">{item.quantity}</td>
+                          <td className="p-2 text-right">₹{item.unit_price.toFixed(2)}</td>
+                          <td className="p-2 text-right">{item.gst_rate}%</td>
+                          <td className="p-2 text-right font-semibold text-text-primary">₹{item.total_amount.toFixed(2)}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className="p-4 text-center text-text-muted font-mono">
+                          No structured line items parsed.
+                        </td>
                       </tr>
-                    ))}
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -330,154 +376,153 @@ export const InvoiceInspector: React.FC<Props> = ({ invoice, onClose, onRefresh 
           </div>
         )}
 
-        {/* TAB 2: VALIDATION RESULTS */}
+        {/* TAB 2: VALIDATION RULES & DISCREPANCIES */}
         {activeTab === 'validation' && (
-          <div className="space-y-4">
-            {(!invoice.validation_results || invoice.validation_results.length === 0) ? (
-              <div className="p-8 text-center border border-dashed border-[#C2DDD0] bg-[#EAF3EE] rounded-lg">
-                <CheckCircle2 className="w-10 h-10 text-primary mx-auto mb-2" />
-                <h4 className="text-sm font-semibold text-primary">All Deterministic Rules Passed</h4>
-                <p className="text-xs text-text-secondary mt-1">
-                  Arithmetic reconciliation, GST split calculations, and vendor records verified with zero discrepancies.
-                </p>
-              </div>
-            ) : (
-              invoice.validation_results.map((res, idx) => (
-                <div
-                  key={idx}
-                  className={`border rounded-lg p-3.5 space-y-2 text-xs ${
-                    res.severity === 'CRITICAL'
-                      ? 'border-status-critical/30 bg-status-criticalBg'
-                      : 'border-status-warning/30 bg-status-warningBg'
-                  }`}
-                >
+          <div className="space-y-3">
+            {invoice.validation_results && invoice.validation_results.length > 0 ? (
+              invoice.validation_results.map((res, i) => (
+                <div key={i} className="border border-border rounded-lg p-3.5 bg-white shadow-sm space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="font-mono font-bold text-[11px] px-1.5 py-0.5 rounded bg-white border border-border">
+                    <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-surfaceMuted border border-border text-navy">
                       {res.rule_code}
                     </span>
-                    <span className={`font-semibold text-[11px] ${res.severity === 'CRITICAL' ? 'text-status-critical' : 'text-status-warning'}`}>
-                      {res.severity} DISCREPANCY
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
+                      res.severity === 'CRITICAL'
+                        ? 'bg-status-criticalBg text-status-critical border-[#ECC7C4]'
+                        : 'bg-status-warningBg text-status-warning border-[#ECDBC2]'
+                    }`}>
+                      {res.severity}
                     </span>
                   </div>
 
-                  <p className="text-text-primary leading-relaxed">{res.explanation}</p>
+                  <p className="text-xs text-text-secondary leading-relaxed">
+                    {res.explanation}
+                  </p>
 
-                  {(res.expected_value || res.actual_value) && (
-                    <div className="grid grid-cols-2 gap-2 p-2 bg-white rounded border border-border/80 font-mono text-[11px]">
-                      <div>
-                        <span className="text-text-muted">Expected: </span>
-                        <span className="text-primary font-semibold">{res.expected_value || 'N/A'}</span>
-                      </div>
-                      <div>
-                        <span className="text-text-muted">Stated: </span>
-                        <span className="text-status-critical font-semibold">{res.actual_value || 'N/A'}</span>
-                      </div>
+                  <div className="p-2 rounded bg-surfaceMuted/50 border border-border text-xs font-mono grid grid-cols-2 gap-2">
+                    <div>
+                      <span className="text-[10px] text-text-muted block">Expected Value:</span>
+                      <span className="font-semibold text-status-success">{res.expected_value || 'N/A'}</span>
                     </div>
-                  )}
+                    <div>
+                      <span className="text-[10px] text-text-muted block">Extracted Value:</span>
+                      <span className="font-semibold text-status-critical">{res.actual_value || 'N/A'}</span>
+                    </div>
+                  </div>
 
                   {res.suggested_correction && (
-                    <div className="text-[11px] text-text-secondary italic">
-                      <span className="font-semibold text-text-primary">Suggested Action: </span>
-                      {res.suggested_correction}
+                    <div className="text-[11px] text-text-muted italic bg-surface p-2 rounded border border-border/60">
+                      Recommendation: {res.suggested_correction}
                     </div>
                   )}
                 </div>
               ))
-            )}
-
-            {/* Anomaly section if any */}
-            {invoice.anomalies && invoice.anomalies.length > 0 && (
-              <div className="pt-3 border-t border-border">
-                <h5 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">
-                  Anomaly Investigation Findings ({invoice.anomalies.length})
-                </h5>
-                {invoice.anomalies.map((anom, i) => (
-                  <div key={i} className="border border-[#E0E6E1] bg-[#FAFCFA] rounded-lg p-3 text-xs mb-2">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="font-semibold text-text-primary">{anom.anomaly_type.replace(/_/g, ' ')}</span>
-                      <span className="text-status-warning font-mono text-[10px] bg-status-warningBg px-1.5 py-0.5 rounded border border-status-warning/20">
-                        Score: {anom.score}
-                      </span>
-                    </div>
-                    <p className="text-text-secondary mb-1.5">{anom.explanation}</p>
-                    <p className="text-[11px] text-primary italic">Investigation: {anom.recommended_action}</p>
-                  </div>
-                ))}
+            ) : (
+              <div className="border border-[#B8D5C7] rounded-lg p-6 bg-status-successBg text-center space-y-2">
+                <CheckCircle2 className="w-8 h-8 text-status-success mx-auto" />
+                <h4 className="font-bold text-xs text-[#39765B]">Deterministic Validation Clean</h4>
+                <p className="text-[11px] text-text-secondary">
+                  Every calculation, tax rate, GSTIN format, and chronological sequence conforms strictly to statutory standards.
+                </p>
               </div>
             )}
           </div>
         )}
 
-        {/* TAB 3: DOCUMENT PREVIEW */}
-        {activeTab === 'preview' && (
-          <div className="h-full flex flex-col space-y-3">
-            <div className="flex items-center justify-between text-xs text-text-secondary pb-2 border-b border-border">
-              <span className="font-mono">{invoice.stored_filename}</span>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => setZoomLevel((prev) => Math.max(prev - 25, 50))}
-                  className="px-2 py-0.5 bg-workspace border border-border rounded font-mono hover:bg-border"
-                >
-                  -
-                </button>
-                <span className="font-mono">{zoomLevel}%</span>
-                <button
-                  onClick={() => setZoomLevel((prev) => Math.min(prev + 25, 200))}
-                  className="px-2 py-0.5 bg-workspace border border-border rounded font-mono hover:bg-border"
-                >
-                  +
-                </button>
-                <a
-                  href={pdfUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center space-x-1 text-primary hover:underline ml-2"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  <span>Open</span>
-                </a>
+        {/* TAB 3: AUDIT HISTORY */}
+        {activeTab === 'audit' && (
+          <div className="space-y-3">
+            <div className="bg-white border border-border rounded-lg p-4 shadow-sm space-y-3 text-xs">
+              <h4 className="font-bold text-text-primary uppercase tracking-wider text-[10px]">
+                Immutable Document Audit Trail
+              </h4>
+
+              <div className="space-y-3 border-l-2 border-border pl-4">
+                <div className="space-y-0.5">
+                  <span className="font-mono text-[10px] text-text-muted">
+                    {invoice.created_at ? new Date(invoice.created_at).toLocaleString() : 'N/A'}
+                  </span>
+                  <p className="font-semibold text-text-primary">Document Ingested & SHA-256 Registered</p>
+                  <p className="font-mono text-[10px] text-text-secondary truncate">
+                    Hash: {invoice.sha256_hash}
+                  </p>
+                </div>
+
+                <div className="space-y-0.5">
+                  <span className="font-mono text-[10px] text-text-muted">
+                    {invoice.updated_at ? new Date(invoice.updated_at).toLocaleString() : 'N/A'}
+                  </span>
+                  <p className="font-semibold text-text-primary">Deterministic Validation Engine Run</p>
+                  <p className="text-[11px] text-text-secondary">
+                    Status: <span className="font-bold text-navy">{invoice.validation_status}</span>
+                  </p>
+                </div>
+
+                {invoice.notes && (
+                  <div className="space-y-0.5">
+                    <span className="font-mono text-[10px] text-text-muted">Audit Note</span>
+                    <p className="text-[11px] text-text-secondary italic">
+                      "{invoice.notes}"
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
+          </div>
+        )}
 
-            <div className="flex-1 min-h-[460px] bg-workspace border border-border rounded-lg overflow-hidden flex items-center justify-center relative">
-              <iframe
-                src={`${pdfUrl}#zoom=${zoomLevel}`}
-                title="Invoice Document Inspection"
-                className="w-full h-full min-h-[460px] border-none"
-              />
+        {/* TAB 4: DOCUMENT PREVIEW */}
+        {activeTab === 'preview' && (
+          <div className="space-y-3">
+            <div className="bg-white border border-border rounded-lg overflow-hidden shadow-sm">
+              <div className="p-2 border-b border-border bg-surfaceMuted flex items-center justify-between text-xs">
+                <span className="font-mono text-text-secondary">{invoice.stored_filename}</span>
+                <a
+                  href={`/storage/invoices/${invoice.stored_filename}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-navy hover:underline text-xs flex items-center space-x-1 font-medium"
+                >
+                  <span>Open in Browser</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+              <div className="h-[460px] bg-slate-900 flex items-center justify-center overflow-hidden">
+                <iframe
+                  src={`/storage/invoices/${invoice.stored_filename}`}
+                  title="Invoice PDF Preview"
+                  className="w-full h-full border-none"
+                />
+              </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Bottom Sticky Action Bar */}
-      <div className="h-16 border-t border-border px-5 bg-surface flex items-center justify-between shrink-0">
-        <button
-          onClick={handleRevalidate}
-          disabled={isProcessing}
-          className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-text-primary bg-workspace hover:bg-border/60 rounded border border-border transition-colors"
-        >
-          <RotateCw className={`w-3.5 h-3.5 ${isProcessing ? 'animate-spin' : ''}`} />
-          <span>Re-run Validation</span>
-        </button>
+      {/* 5. Footer Operational Decision Bar */}
+      <div className="px-5 py-3 border-t border-border bg-white flex items-center justify-between shrink-0 shadow-sm">
+        <div className="text-[11px] text-text-muted font-mono">
+          Lead Auditor Action
+        </div>
 
         <div className="flex items-center space-x-2">
           <button
             onClick={handleReject}
             disabled={isProcessing}
-            className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-medium text-status-critical bg-status-criticalBg hover:bg-status-critical/10 rounded border border-status-critical/30 transition-colors"
+            className="px-3 py-1.5 rounded border border-status-critical/30 bg-status-criticalBg text-status-critical hover:bg-status-critical/20 text-xs font-semibold flex items-center space-x-1.5 transition-colors"
           >
             <Ban className="w-3.5 h-3.5" />
-            <span>Reject</span>
+            <span>Reject Invoice</span>
           </button>
 
           <button
             onClick={handleApprove}
-            disabled={isProcessing}
-            className="flex items-center space-x-1.5 px-4 py-1.5 text-xs font-medium text-white bg-primary hover:bg-primary-dark rounded shadow-sm transition-colors"
+            disabled={isProcessing || isCritical}
+            title={isCritical ? 'Resolve critical discrepancies before approving' : 'Authorize payment'}
+            className="px-4 py-1.5 rounded bg-status-success hover:bg-status-success/90 disabled:opacity-50 text-white text-xs font-semibold flex items-center space-x-1.5 transition-colors shadow-sm"
           >
             <Check className="w-3.5 h-3.5" />
-            <span>Approve Invoice</span>
+            <span>Approve for Payment</span>
           </button>
         </div>
       </div>

@@ -7,37 +7,48 @@ export default {
   theme: {
     extend: {
       colors: {
-        workspace: "#F4F6F4",
+        page: "#F8F6F1",
         surface: "#FFFFFF",
+        surfaceSecondary: "#F4F1EB",
+        surfaceMuted: "#EEEAE2",
+        textPrimary: "#15263B",
+        textSecondary: "#687586",
+        textMuted: "#89919B",
         primary: {
-          DEFAULT: "#286B55",
-          light: "#EAF3EE",
-          dark: "#1c4d3d"
+          DEFAULT: "#B96C32",        // Muted copper-orange
+          hover: "#A65C28",
         },
-        text: {
-          primary: "#24312D",
-          secondary: "#74817B",
-          muted: "#9AA6A0"
+        copper: {
+          DEFAULT: "#B96C32",
+          hover: "#A65C28",
+          light: "#FBF6F0",
         },
-        border: {
-          DEFAULT: "#E0E6E1",
-          light: "#EEF2EF"
+        navy: {
+          DEFAULT: "#15263B",        // Deep navy
+          secondary: "#244B60",
+          hover: "#1D3A4B",
+          dark: "#0E1B2A",
         },
         status: {
-          warning: "#B7791F",
-          warningBg: "#FEF7EC",
-          critical: "#C2413B",
-          criticalBg: "#FDF2F2",
-          info: "#527A9B",
-          infoBg: "#EEF4F8",
-          success: "#286B55",
-          successBg: "#EAF3EE"
-        }
+          success: "#26764F",
+          successBg: "#EAF4ED",
+          warning: "#C47B16",
+          warningBg: "#FFF3E1",
+          error: "#B83D37",
+          errorBg: "#FBECEA",
+        },
+        border: {
+          DEFAULT: "#E4DED4",
+          divider: "#EAE5DC",
+          light: "#EFECE6",
+        },
+        selectedRow: "#F9F5EE",
       },
       fontFamily: {
+        serif: ['"Source Serif 4"', 'Georgia', 'serif'],
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace']
-      }
+        mono: ['"IBM Plex Mono"', 'JetBrains Mono', 'Consolas', 'monospace'],
+      },
     },
   },
   plugins: [],

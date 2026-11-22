@@ -10,7 +10,10 @@ import {
   CheckCircle2,
   AlertTriangle,
   XCircle,
-  ChevronRight
+  ChevronRight,
+  ShieldCheck,
+  RotateCw,
+  FileSpreadsheet
 } from 'lucide-react';
 import { api } from '../services/api';
 import { Invoice } from '../types';
@@ -24,6 +27,7 @@ export const ValidationCentrePage: React.FC<Props> = ({ onSelectInvoice }) => {
   const [selectedInv, setSelectedInv] = useState<Invoice | null>(null);
   const [groupedChecks, setGroupedChecks] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [isValidating, setIsValidating] = useState<boolean>(false);
 
   useEffect(() => {
     loadInvoices();
@@ -47,12 +51,14 @@ export const ValidationCentrePage: React.FC<Props> = ({ onSelectInvoice }) => {
   const loadValidationDetails = async (inv: Invoice) => {
     setSelectedInv(inv);
     try {
-      const res = await api.revalidateInvoice(inv.id);
-      // Fetch full invoice detail
+      setIsValidating(true);
+      await api.revalidateInvoice(inv.id);
       const full = await api.getInvoice(inv.id);
       groupChecks(full);
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsValidating(false);
     }
   };
 
@@ -70,21 +76,20 @@ export const ValidationCentrePage: React.FC<Props> = ({ onSelectInvoice }) => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-xl font-bold tracking-tight text-text-primary">Validation Engine & Rule Execution Centre</h1>
-        <p className="text-xs text-text-secondary mt-0.5">
-          Deep deterministic inspection grouped by arithmetic, Indian GST, statutory dates, duplicates, and anomaly checks.
-        </p>
+    <div className="space-y-4">
+      {/* Header Banner */}
+      <div className="bg-white border border-border rounded-lg p-5 shadow-sm">
+        <h1 className="text-xl font-bold tracking-tight text-text-primary">
+          Validation Centre & Rule Execution
+        </h1>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Side: Invoice Picker (4 cols) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        {/* Left Side: Invoice Selector (4 cols) */}
         <div className="lg:col-span-4 bg-white border border-border rounded-lg shadow-sm flex flex-col h-[700px] overflow-hidden">
-          <div className="p-3 border-b border-border bg-surface font-semibold text-xs text-text-primary flex justify-between items-center">
-            <span>Select Invoice for Audit Trace</span>
-            <span className="text-[11px] font-mono text-text-muted">{invoices.length} Available</span>
+          <div className="p-3 border-b border-border bg-surfaceMuted/50 font-semibold text-xs text-text-primary flex justify-between items-center">
+            <span>Select Invoice to Audit</span>
+            <span className="text-[10px] font-mono text-text-muted">{invoices.length} Available</span>
           </div>
 
           <div className="flex-1 overflow-y-auto divide-y divide-border">
@@ -95,19 +100,23 @@ export const ValidationCentrePage: React.FC<Props> = ({ onSelectInvoice }) => {
                   key={inv.id}
                   onClick={() => loadValidationDetails(inv)}
                   className={`p-3 text-xs cursor-pointer transition-colors ${
-                    isSelected ? 'bg-[#EAF3EE] border-l-4 border-l-primary' : 'hover:bg-workspace/50'
+                    isSelected
+                      ? 'bg-navy-light/60 border-l-4 border-l-navy'
+                      : 'hover:bg-[#F5F2EC]/60'
                   }`}
                 >
                   <div className="flex justify-between items-center mb-1">
-                    <span className="font-mono font-semibold text-primary">{inv.id}</span>
+                    <span className="font-mono font-bold text-navy">{inv.id}</span>
                     <span className="font-mono text-text-primary font-bold">
                       ₹{inv.grand_total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </span>
                   </div>
                   <p className="text-text-primary font-medium truncate">{inv.vendor_name || 'N/A'}</p>
                   <div className="flex justify-between text-[11px] text-text-secondary mt-1">
-                    <span>{inv.invoice_number}</span>
-                    <span className="font-semibold text-[10px] uppercase">{inv.validation_status}</span>
+                    <span className="font-mono">{inv.invoice_number || '—'}</span>
+                    <span className="font-mono text-[10px] uppercase font-bold text-text-muted">
+                      {inv.validation_status}
+                    </span>
                   </div>
                 </div>
               );
@@ -118,18 +127,18 @@ export const ValidationCentrePage: React.FC<Props> = ({ onSelectInvoice }) => {
         {/* Right Side: Grouped Validation Suites (8 cols) */}
         <div className="lg:col-span-8 space-y-4">
           {selectedInv && (
-            <div className="p-3.5 bg-white border border-border rounded-lg shadow-sm flex items-center justify-between">
+            <div className="p-4 bg-white border border-border rounded-lg shadow-sm flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-bold text-text-primary">
                   Audit Findings for {selectedInv.invoice_number || selectedInv.id}
                 </h3>
                 <p className="text-xs text-text-secondary mt-0.5">
-                  Vendor: {selectedInv.vendor_name} | GSTIN: {selectedInv.vendor_gstin || 'None'}
+                  Vendor: <span className="font-medium text-text-primary">{selectedInv.vendor_name}</span> | GSTIN: <span className="font-mono">{selectedInv.vendor_gstin || 'None'}</span>
                 </p>
               </div>
               <button
                 onClick={() => onSelectInvoice(selectedInv)}
-                className="px-3 py-1.5 bg-workspace hover:bg-border text-primary border border-[#C2DDD0] rounded text-xs font-medium transition-colors"
+                className="px-3 py-1.5 bg-navy hover:bg-navy-dark text-white rounded text-xs font-medium transition-colors shadow-sm"
               >
                 Open Full Inspector
               </button>
@@ -139,25 +148,25 @@ export const ValidationCentrePage: React.FC<Props> = ({ onSelectInvoice }) => {
           {/* Group 1: Arithmetic Checks */}
           <div className="bg-white border border-border rounded-lg p-4 shadow-sm space-y-3">
             <div className="flex items-center space-x-2 border-b border-border pb-2">
-              <Calculator className="w-4 h-4 text-primary" />
+              <Calculator className="w-4 h-4 text-navy" />
               <h4 className="text-xs font-bold text-text-primary uppercase tracking-wider">
-                1. Arithmetic & Calculation Reconciliation
+                1. Arithmetic & Calculation Reconciliation (Python Decimal)
               </h4>
             </div>
 
             {groupedChecks?.arithmetic?.length === 0 ? (
-              <div className="flex items-center space-x-2 text-xs text-primary bg-[#EAF3EE] p-2.5 rounded border border-[#C2DDD0]">
+              <div className="flex items-center space-x-2 text-xs text-[#39765B] bg-[#EBF3EF] p-2.5 rounded border border-[#B8D5C7]">
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
                 <span>Line item amounts, taxable sum, subtotal, and grand total balance with zero mathematical variance.</span>
               </div>
             ) : (
               groupedChecks?.arithmetic?.map((item: any, idx: number) => (
-                <div key={idx} className="p-3 bg-status-criticalBg border border-status-critical/30 rounded text-xs space-y-1">
+                <div key={idx} className="p-3 bg-status-criticalBg border border-[#ECC7C4] rounded text-xs space-y-1">
                   <div className="flex justify-between font-mono font-bold text-status-critical">
                     <span>{item.rule_code}</span>
                     <span>DIFFERENCE: {item.difference}</span>
                   </div>
-                  <p className="text-text-primary">{item.explanation}</p>
+                  <p className="text-text-primary leading-relaxed">{item.explanation}</p>
                   <p className="text-[11px] text-text-secondary italic">Correction: {item.suggested_correction}</p>
                 </div>
               ))
@@ -167,25 +176,25 @@ export const ValidationCentrePage: React.FC<Props> = ({ onSelectInvoice }) => {
           {/* Group 2: Indian GST Tax Checks */}
           <div className="bg-white border border-border rounded-lg p-4 shadow-sm space-y-3">
             <div className="flex items-center space-x-2 border-b border-border pb-2">
-              <Percent className="w-4 h-4 text-primary" />
+              <Percent className="w-4 h-4 text-navy" />
               <h4 className="text-xs font-bold text-text-primary uppercase tracking-wider">
                 2. Indian GST Compliance & Place of Supply
               </h4>
             </div>
 
             {groupedChecks?.tax?.length === 0 ? (
-              <div className="flex items-center space-x-2 text-xs text-primary bg-[#EAF3EE] p-2.5 rounded border border-[#C2DDD0]">
+              <div className="flex items-center space-x-2 text-xs text-[#39765B] bg-[#EBF3EF] p-2.5 rounded border border-[#B8D5C7]">
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
                 <span>GSTIN format, 2-digit state prefix, intra-state CGST/SGST balance, and inter-state IGST verified.</span>
               </div>
             ) : (
               groupedChecks?.tax?.map((item: any, idx: number) => (
-                <div key={idx} className="p-3 bg-status-criticalBg border border-status-critical/30 rounded text-xs space-y-1">
+                <div key={idx} className="p-3 bg-status-criticalBg border border-[#ECC7C4] rounded text-xs space-y-1">
                   <div className="flex justify-between font-mono font-bold text-status-critical">
                     <span>{item.rule_code}</span>
                     <span>{item.severity}</span>
                   </div>
-                  <p className="text-text-primary">{item.explanation}</p>
+                  <p className="text-text-primary leading-relaxed">{item.explanation}</p>
                   <p className="text-[11px] text-text-secondary italic">Action: {item.suggested_correction}</p>
                 </div>
               ))
@@ -195,25 +204,25 @@ export const ValidationCentrePage: React.FC<Props> = ({ onSelectInvoice }) => {
           {/* Group 3: Statutory Date Validation */}
           <div className="bg-white border border-border rounded-lg p-4 shadow-sm space-y-3">
             <div className="flex items-center space-x-2 border-b border-border pb-2">
-              <Calendar className="w-4 h-4 text-primary" />
+              <Calendar className="w-4 h-4 text-navy" />
               <h4 className="text-xs font-bold text-text-primary uppercase tracking-wider">
                 3. Statutory Date & Sequence Checks
               </h4>
             </div>
 
             {groupedChecks?.date?.length === 0 ? (
-              <div className="flex items-center space-x-2 text-xs text-primary bg-[#EAF3EE] p-2.5 rounded border border-[#C2DDD0]">
+              <div className="flex items-center space-x-2 text-xs text-[#39765B] bg-[#EBF3EF] p-2.5 rounded border border-[#B8D5C7]">
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
                 <span>Invoice date is valid, not future-dated, within Section 16(4) ITC limits, and precedes payment due date.</span>
               </div>
             ) : (
               groupedChecks?.date?.map((item: any, idx: number) => (
-                <div key={idx} className="p-3 bg-status-warningBg border border-status-warning/30 rounded text-xs space-y-1">
+                <div key={idx} className="p-3 bg-status-warningBg border border-[#ECDBC2] rounded text-xs space-y-1">
                   <div className="flex justify-between font-mono font-bold text-status-warning">
                     <span>{item.rule_code}</span>
                     <span>{item.difference}</span>
                   </div>
-                  <p className="text-text-primary">{item.explanation}</p>
+                  <p className="text-text-primary leading-relaxed">{item.explanation}</p>
                   <p className="text-[11px] text-text-secondary italic">{item.suggested_correction}</p>
                 </div>
               ))
@@ -223,22 +232,22 @@ export const ValidationCentrePage: React.FC<Props> = ({ onSelectInvoice }) => {
           {/* Group 4: Duplicate & Anomaly Checks */}
           <div className="bg-white border border-border rounded-lg p-4 shadow-sm space-y-3">
             <div className="flex items-center space-x-2 border-b border-border pb-2">
-              <Zap className="w-4 h-4 text-primary" />
+              <Zap className="w-4 h-4 text-copper" />
               <h4 className="text-xs font-bold text-text-primary uppercase tracking-wider">
                 4. Duplicate Submissions & Anomaly Signals
               </h4>
             </div>
 
             {groupedChecks?.duplicate?.length === 0 && groupedChecks?.anomaly?.length === 0 ? (
-              <div className="flex items-center space-x-2 text-xs text-primary bg-[#EAF3EE] p-2.5 rounded border border-[#C2DDD0]">
+              <div className="flex items-center space-x-2 text-xs text-[#39765B] bg-[#EBF3EF] p-2.5 rounded border border-[#B8D5C7]">
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
                 <span>No exact SHA-256 binary hash duplicates, no fuzzy statutory duplicates, and no statistical outlier warnings.</span>
               </div>
             ) : (
               <div className="space-y-2">
                 {groupedChecks?.duplicate?.map((d: any, idx: number) => (
-                  <div key={idx} className="p-3 bg-[#FDF2F2] border border-[#F7C6C4] rounded text-xs space-y-1">
-                    <div className="flex justify-between font-mono font-bold text-[#C2413B]">
+                  <div key={idx} className="p-3 bg-status-criticalBg border border-[#ECC7C4] rounded text-xs space-y-1">
+                    <div className="flex justify-between font-mono font-bold text-status-critical">
                       <span>{d.match_type}</span>
                       <span>Confidence: {d.confidence_score * 100}%</span>
                     </div>
@@ -246,8 +255,8 @@ export const ValidationCentrePage: React.FC<Props> = ({ onSelectInvoice }) => {
                   </div>
                 ))}
                 {groupedChecks?.anomaly?.map((a: any, idx: number) => (
-                  <div key={idx} className="p-3 bg-[#FEF7EC] border border-[#F3E2C4] rounded text-xs space-y-1">
-                    <div className="flex justify-between font-mono font-bold text-[#B7791F]">
+                  <div key={idx} className="p-3 bg-status-warningBg border border-[#ECDBC2] rounded text-xs space-y-1">
+                    <div className="flex justify-between font-mono font-bold text-status-warning">
                       <span>{a.anomaly_type}</span>
                       <span>Anomaly Score: {a.score}</span>
                     </div>

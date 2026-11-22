@@ -52,42 +52,41 @@ export const PurchaseOrdersPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-xl font-bold tracking-tight text-text-primary">Three-Way Matching & Procurement</h1>
-        <p className="text-xs text-text-secondary mt-0.5">
-          Deterministic cross-reconciliation between Purchase Orders (PO), Warehouse Goods Received Notes (GRN), and Vendor Invoices.
-        </p>
+    <div className="space-y-4">
+      {/* Header Banner */}
+      <div className="bg-white border border-border rounded-lg p-5 shadow-sm">
+        <h1 className="text-xl font-bold tracking-tight text-text-primary">
+          Purchase Order Reconciliation (Three-Way Matching)
+        </h1>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Left Side: Purchase Orders Directory (5 cols) */}
         <div className="lg:col-span-5 space-y-4">
           <div className="bg-white border border-border rounded-lg shadow-sm overflow-hidden">
-            <div className="p-3 border-b border-border bg-surface font-semibold text-xs text-text-primary flex justify-between items-center">
-              <span>Active Purchase Orders</span>
-              <span className="text-[11px] font-mono text-text-muted">{purchaseOrders.length} Orders</span>
+            <div className="p-3 border-b border-border bg-surfaceMuted/50 font-semibold text-xs text-text-primary flex justify-between items-center">
+              <span>Authorized Purchase Orders</span>
+              <span className="text-[10px] font-mono text-text-muted">{purchaseOrders.length} Orders</span>
             </div>
 
             <div className="divide-y divide-border max-h-[620px] overflow-y-auto">
               {purchaseOrders.map((po) => (
-                <div key={po.id} className="p-3.5 text-xs hover:bg-workspace/40 space-y-2">
+                <div key={po.id} className="p-3.5 text-xs hover:bg-[#F5F2EC]/40 space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="font-mono font-bold text-primary">{po.po_number}</span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 bg-[#EAF3EE] text-[#286B55] rounded border border-[#C2DDD0]">
+                    <span className="font-mono font-bold text-navy">{po.po_number}</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 bg-status-successBg text-status-success rounded border border-[#B8D5C7]">
                       {po.status}
                     </span>
                   </div>
 
                   <div className="flex justify-between text-text-secondary">
-                    <span>{po.vendor_name}</span>
+                    <span className="font-medium text-text-primary">{po.vendor_name}</span>
                     <span className="font-mono font-semibold text-text-primary">
                       ₹{po.total_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </span>
                   </div>
 
-                  <div className="bg-workspace p-2 rounded border border-border text-[11px] space-y-1">
+                  <div className="bg-surfaceMuted/50 p-2 rounded border border-border text-[11px] space-y-1">
                     {po.items.map((itm: any, i: number) => (
                       <div key={i} className="flex justify-between text-text-primary">
                         <span className="truncate max-w-[200px]">{itm.description}</span>
@@ -110,7 +109,7 @@ export const PurchaseOrdersPage: React.FC = () => {
               <select
                 value={selectedInvId}
                 onChange={(e) => handleRunMatch(e.target.value)}
-                className="text-xs font-mono font-medium p-1.5 bg-workspace border border-border rounded focus:border-primary outline-none"
+                className="text-xs font-mono font-medium p-1.5 bg-surfaceMuted border border-border rounded focus:ring-1 focus:ring-navy outline-none"
               >
                 {invoices.map((inv) => (
                   <option key={inv.id} value={inv.id}>
@@ -124,10 +123,10 @@ export const PurchaseOrdersPage: React.FC = () => {
               <span
                 className={`text-xs font-bold font-mono px-2.5 py-1 rounded border ${
                   matchResult.status === 'MATCHED'
-                    ? 'bg-[#EAF3EE] text-[#286B55] border-[#C2DDD0]'
+                    ? 'bg-status-successBg text-status-success border-[#B8D5C7]'
                     : matchResult.status === 'NOT_PERFORMED'
-                    ? 'bg-workspace text-text-muted border-border'
-                    : 'bg-status-criticalBg text-status-critical border-status-critical/30'
+                    ? 'bg-surfaceMuted text-text-muted border-border'
+                    : 'bg-status-criticalBg text-status-critical border-[#ECC7C4]'
                 }`}
               >
                 {matchResult.status}
@@ -145,60 +144,68 @@ export const PurchaseOrdersPage: React.FC = () => {
 
               {/* 3 Blocks Comparison */}
               <div className="grid grid-cols-3 gap-3 text-center">
-                <div className="p-3 bg-workspace border border-border rounded-lg">
+                <div className="p-3 bg-surfaceMuted/50 border border-border rounded-lg">
                   <p className="text-[10px] text-text-secondary uppercase font-semibold">1. Purchase Order</p>
                   <p className="font-mono text-xs font-bold text-text-primary mt-1">
-                    {matchResult.po_number || 'None'}
+                    {matchResult.po_found ? matchResult.po_number : 'Not Supplied'}
                   </p>
-                  <p className="text-[11px] font-mono text-primary font-semibold mt-0.5">
-                    {matchResult.po_details ? `₹${matchResult.po_details.total_amount.toLocaleString('en-IN')}` : '—'}
-                  </p>
-                </div>
-
-                <div className="p-3 bg-workspace border border-border rounded-lg">
-                  <p className="text-[10px] text-text-secondary uppercase font-semibold">2. Goods Received (GRN)</p>
-                  <p className="font-mono text-xs font-bold text-text-primary mt-1">
-                    {matchResult.grn_details?.length > 0 ? matchResult.grn_details[0].grn_number : 'Missing'}
-                  </p>
-                  <p className="text-[11px] text-text-secondary mt-0.5">
-                    {matchResult.grn_details?.length > 0 ? 'Delivered & Accepted' : 'No GRN Found'}
+                  <p className="text-[11px] font-mono text-text-secondary mt-0.5">
+                    {matchResult.po_total ? `₹${matchResult.po_total.toLocaleString('en-IN')}` : '—'}
                   </p>
                 </div>
 
-                <div className="p-3 bg-workspace border border-border rounded-lg">
-                  <p className="text-[10px] text-text-secondary uppercase font-semibold">3. Vendor Invoice</p>
+                <div className="p-3 bg-surfaceMuted/50 border border-border rounded-lg">
+                  <p className="text-[10px] text-text-secondary uppercase font-semibold">2. Warehouse GRN</p>
                   <p className="font-mono text-xs font-bold text-text-primary mt-1">
+                    {matchResult.grn_found ? 'GRN Verified' : 'Pending Intake'}
+                  </p>
+                  <p className="text-[11px] font-mono text-text-secondary mt-0.5">
+                    {matchResult.grn_items_count ? `${matchResult.grn_items_count} Line Items` : '—'}
+                  </p>
+                </div>
+
+                <div className="p-3 bg-surfaceMuted/50 border border-border rounded-lg">
+                  <p className="text-[10px] text-text-secondary uppercase font-semibold">3. Billed Invoice</p>
+                  <p className="font-mono text-xs font-bold text-navy mt-1">
                     {selectedInvId}
                   </p>
-                  <p className="text-[11px] font-mono text-text-primary font-semibold mt-0.5">
-                    Verified
+                  <p className="text-[11px] font-mono font-bold text-text-primary mt-0.5">
+                    {matchResult.invoice_total ? `₹${matchResult.invoice_total.toLocaleString('en-IN')}` : '—'}
                   </p>
                 </div>
               </div>
 
-              {/* Discrepancies Table */}
-              {matchResult.discrepancies?.length > 0 ? (
-                <div className="space-y-2 pt-2 border-t border-border">
-                  <h4 className="text-xs font-bold text-status-critical uppercase tracking-wider">
-                    Identified Variances ({matchResult.discrepancies.length})
-                  </h4>
-                  {matchResult.discrepancies.map((d: any, idx: number) => (
-                    <div key={idx} className="p-3 bg-status-criticalBg border border-status-critical/30 rounded text-xs space-y-1">
-                      <div className="flex justify-between font-mono font-bold text-status-critical">
-                        <span>{d.check}</span>
-                        {d.difference && <span>DIFF: {d.difference}</span>}
-                      </div>
-                      <p className="text-text-primary">{d.explanation}</p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-6 text-center border border-dashed border-[#C2DDD0] bg-[#EAF3EE] rounded-lg text-xs space-y-1">
-                  <CheckCircle2 className="w-8 h-8 text-primary mx-auto mb-1" />
-                  <p className="font-semibold text-primary">Full Three-Way Match Confirmed</p>
-                  <p className="text-text-secondary">
-                    Quantity, contracted unit pricing, authorized total, and warehouse receipt status perfectly align.
-                  </p>
+              {/* Line Items Variance Table */}
+              {matchResult.items_comparison && matchResult.items_comparison.length > 0 && (
+                <div className="border border-border rounded-lg overflow-hidden">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-surfaceMuted text-text-secondary font-mono text-[10px] border-b border-border">
+                      <tr>
+                        <th className="p-2.5">Item Description</th>
+                        <th className="p-2.5 text-right">PO Qty</th>
+                        <th className="p-2.5 text-right">GRN Qty</th>
+                        <th className="p-2.5 text-right">Billed Qty</th>
+                        <th className="p-2.5 text-right">Variance</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border font-mono text-[11px]">
+                      {matchResult.items_comparison.map((c: any, i: number) => (
+                        <tr key={i} className="hover:bg-surfaceMuted/30">
+                          <td className="p-2.5 font-sans font-medium text-text-primary">{c.description}</td>
+                          <td className="p-2.5 text-right">{c.po_qty}</td>
+                          <td className="p-2.5 text-right">{c.grn_qty}</td>
+                          <td className="p-2.5 text-right font-semibold text-text-primary">{c.invoice_qty}</td>
+                          <td className="p-2.5 text-right">
+                            {c.qty_diff === 0 ? (
+                              <span className="text-status-success font-bold">MATCH</span>
+                            ) : (
+                              <span className="text-status-critical font-bold">{c.qty_diff > 0 ? `+${c.qty_diff}` : c.qty_diff}</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               )}
             </div>

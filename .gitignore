@@ -37,9 +37,8 @@ htmlcov/
 *.db-journal
 *.sqlite3-journal
 
-# Storage generated files (keep empty folder)
-storage/invoices/*
-!storage/invoices/.gitkeep
+# Storage and invoice documents (excluded from git push to protect confidential addresses and invoice documents)
+storage/
 
 # Environment secrets
 .env
@@ -60,3 +59,6 @@ yarn-error.log*
 *.swo
 .DS_Store
 Thumbs.db
+
+# Screenshots (excluded from git push)
+screenshots/

@@ -46,13 +46,26 @@ INVOSTRATA eliminates these operational risks with a local-first, deterministic 
 ---
 
 ## 5. Visual Interface & Design System
-INVOSTRATA follows a restrained enterprise aesthetic:
-- **Main Workspace**: `#F4F6F4`
-- **Surface**: `#FFFFFF`
-- **Primary Green**: `#286B55` (Active navigation states & verified indicators)
-- **Border**: `#E0E6E1`
-- **Warning Amber**: `#B7791F`
-- **Critical Red**: `#C2413B`
+INVOSTRATA features a professional financial operations interface inspired by modern accounting workstations and institutional audit platforms:
+- **Page Background**: `#F8F6F1` (Warm Ivory / Off-White)
+- **Main Surface**: `#FFFFFF` (Crisp White)
+- **Secondary Surface**: `#F4F1EB` (Soft Stone)
+- **Primary Text**: `#15263B` (Deep Navy)
+- **Secondary Text**: `#687586` (Slate Grey)
+- **Muted Text**: `#89919B` (Warm Muted Grey)
+- **Primary Accent**: `#B96C32` (Muted Copper-Orange)
+- **Secondary Accent**: `#244B60` (Refined Navy)
+- **Success / Passed**: `#26764F` (Forest Green, bg: `#EAF4ED`)
+- **Warning / Review**: `#C47B16` (Warm Amber, bg: `#FFF3E1`)
+- **Critical / Failed**: `#B83D37` (Muted Crimson, bg: `#FBECEA`)
+- **Borders**: `#E4DED4` (Warm Grey Border)
+- **Table Dividers**: `#EAE5DC` (Soft Divider)
+
+### Layout & Navigation Hierarchy
+- **Horizontal Top Navigation**: Clean slim horizontal top bar with wordmark, workspace label, horizontal tabs, database connectivity status, quick Import Invoices action, and user profile.
+- **No Permanent Left Sidebar**: Fully horizontal navigation freeing maximum horizontal width for dense accounting tables.
+- **Financial Control Room**: Single horizontal summary strip (Total Processed, Pass Rate, Pending Review, Critical Failures, Duplicates) and dominant Invoice Processing Register data table with column sorting, live filters, multi-selection, and pagination.
+- **Docked Audit Inspector**: Slide-out audit drawer with Overview, Validation Findings, Audit Trail, and Document Preview tabs + Approve, Reject, and Manual Correction controls.
 
 ---
 
@@ -126,13 +139,13 @@ INVOSTRATA follows a restrained enterprise aesthetic:
 │   └── seed/                       # Database seeder (105 synthetic invoices)
 ├── frontend/                       # React 18 + TypeScript + Vite workstation
 │   ├── src/
-│   │   ├── components/             # NavigationRail, TopNav, InvoiceInspector
+│   │   ├── components/             # TopNav, InvoiceInspector, StatusBadge
 │   │   └── pages/                  # 10 dedicated operational workspaces
 ├── data/
 │   ├── sample_invoices.csv         # Batch ingestion sample
 │   └── README.md
 ├── docs/                           # Architecture, User Guide, Testing specs
-└── tests/                          # 23 automated unit and integration tests
+└── tests/                          # 25 automated unit and integration tests
 ```
 
 ---

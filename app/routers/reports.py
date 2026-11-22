@@ -105,6 +105,14 @@ def get_analytics_distributions(db: Session = Depends(get_db)):
         "vendor_discrepancies": vendor_disc
     }
 
+@router.get("/pdf")
+def export_pdf_direct(db: Session = Depends(get_db)):
+    return export_reports(format="pdf", db=db)
+
+@router.get("/csv")
+def export_csv_direct(db: Session = Depends(get_db)):
+    return export_reports(format="csv", db=db)
+
 @router.get("/export")
 def export_reports(
     format: str = Query("csv", pattern="^(csv|pdf)$"),
