@@ -258,13 +258,5 @@ tests/test_three_way_matching.py::test_matching_success_all_aligned PASSED
 
 ---
 
-## 17. Learning Outcomes & Resume Keywords
-- **FinTech Operations**: Indian GST rules, Intra-state vs Inter-state supply, Section 16(4) ITC audit.
-- **Deterministic Math**: Python `Decimal`, `ROUND_HALF_UP` quantization, arithmetic variance detection.
-- **Enterprise Architecture**: FastAPI, SQLAlchemy 2.0, Pydantic v2, React 18, TypeScript, Recharts.
-- **Three-Way Matching**: Reconciling Purchase Orders (PO), Goods Received Notes (GRN), and invoices.
-
----
-
-## 18. License
+## 17. License
 MIT License. Developed for the 90 Days – 90 Projects Challenge.
